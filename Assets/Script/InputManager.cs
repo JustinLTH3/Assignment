@@ -4,10 +4,18 @@ using UnityEngine;
 
 public class InputManager : MonoBehaviour
 {
-    PlayerInput playerInput;
+    public PlayerInput playerInput { get; private set; }
+    static InputManager instance;
     private void Start()
     {
+        if (instance == null)
+            instance = this;
+        else if (instance != this) Destroy(gameObject);
+
         playerInput = new();
-        
+        //playerInput.Gameplay.Enable();
+
     }
+
+
 }
