@@ -1,0 +1,40 @@
+{
+    "name": "PlayerInput",
+    "maps": [
+        {
+            "name": "Gameplay",
+            "id": "6084a52b-abfb-4353-8a6a-5c1c67607257",
+            "actions": [
+                {
+                    "name": "New action",
+                    "type": "Button",
+                    "id": "a3473862-9a67-4de0-85c3-cc8002f29773",
+                    "expectedControlType": "Button",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
+                }
+            ],
+            "bindings": [
+                {
+                    "name": "",
+                    "id": "9c8c894e-1205-4016-9935-828ec4c68a79",
+                    "path": "",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "Defalt",
+                    "action": "New action",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                }
+            ]
+        }
+    ],
+    "controlSchemes": [
+        {
+            "name": "Defalt",
+            "bindingGroup": "Defalt",
+            "devices": []
+        }
+    ]
+}
