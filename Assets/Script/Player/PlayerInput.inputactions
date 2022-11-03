@@ -6,9 +6,18 @@
             "id": "6084a52b-abfb-4353-8a6a-5c1c67607257",
             "actions": [
                 {
-                    "name": "New action",
-                    "type": "Button",
+                    "name": "Movement",
+                    "type": "Value",
                     "id": "a3473862-9a67-4de0-85c3-cc8002f29773",
+                    "expectedControlType": "Axis",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": true
+                },
+                {
+                    "name": "Jump",
+                    "type": "Button",
+                    "id": "964515a8-c05b-4eed-8c70-a4d243fa6f4c",
                     "expectedControlType": "Button",
                     "processors": "",
                     "interactions": "",
@@ -18,14 +27,47 @@
             "bindings": [
                 {
                     "name": "",
-                    "id": "9c8c894e-1205-4016-9935-828ec4c68a79",
-                    "path": "",
+                    "id": "b5980847-d9ca-4df4-86a8-7c3dd58b7c65",
+                    "path": "<Keyboard>/w",
                     "interactions": "",
                     "processors": "",
                     "groups": "Defalt",
-                    "action": "New action",
+                    "action": "Jump",
                     "isComposite": false,
                     "isPartOfComposite": false
+                },
+                {
+                    "name": "AD",
+                    "id": "cf7fd67a-e348-4829-854a-8ad9c9de9056",
+                    "path": "1DAxis",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "Movement",
+                    "isComposite": true,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "negative",
+                    "id": "3a4cce73-cff4-4c5b-946d-e27f232907e9",
+                    "path": "<Keyboard>/a",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "Defalt",
+                    "action": "Movement",
+                    "isComposite": false,
+                    "isPartOfComposite": true
+                },
+                {
+                    "name": "positive",
+                    "id": "13bac124-1e4a-46e9-b9ad-0f12e96f05ab",
+                    "path": "<Keyboard>/d",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "Defalt",
+                    "action": "Movement",
+                    "isComposite": false,
+                    "isPartOfComposite": true
                 }
             ]
         }
