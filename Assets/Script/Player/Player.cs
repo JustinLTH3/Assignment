@@ -21,6 +21,14 @@ public class Player : MonoBehaviour
     private float jumpHeight = 1;
     private bool jump;
 
+
+    //Bars value
+    public float AnxietyValue { get; private set; }
+    public float BowelValue { get; private set; }
+    private float f_anxietyMultiplier = 3;
+    private float f_bowelMultiplier = 3;
+    private float max = 100;
+
     private void Start()
     {
         rb = GetComponent<Rigidbody2D>();
@@ -33,22 +41,26 @@ public class Player : MonoBehaviour
         inputManager.playerInput.Gameplay.Jump.performed += Jump_performed;
         inputManager.playerInput.Gameplay.Jump.canceled += Jump_performed;
 
-    }
+        BowelValue = 0;
+        AnxietyValue = 0;
 
+    }
     private void Jump_performed(UnityEngine.InputSystem.InputAction.CallbackContext obj)
     {
         jump = obj.ReadValueAsButton();
     }
-
     private void Movement_performed(UnityEngine.InputSystem.InputAction.CallbackContext obj)
     {
         f_movementInput = obj.ReadValue<float>();
     }
-
-
     void GroundCheck()
     {
         isGrounded = Physics2D.OverlapCircle(leg.position, .3f, ground);
+    }
+    private void Update()
+    {
+        BowelValue += Time.deltaTime * f_bowelMultiplier / max;
+        AnxietyValue += Time.deltaTime * f_anxietyMultiplier / max;
     }
     private void FixedUpdate()
     {
