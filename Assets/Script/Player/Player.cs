@@ -25,9 +25,9 @@ public class Player : MonoBehaviour
 
     //Bars value
     public float AnxietyValue { get => anxietyValue; }
-    private float anxietyValue;
+    private float anxietyValue = 0;
     public float BowelValue { get => bowelValue; }
-    private float bowelValue;
+    private float bowelValue = 0;
     private float f_anxietyMultiplier = 3;
     private float f_bowelMultiplier = 6;
     private float max = 100;
@@ -48,11 +48,11 @@ public class Player : MonoBehaviour
         anxietyValue = 0;
 
     }
-    private void Jump_performed(UnityEngine.InputSystem.InputAction.CallbackContext obj)
+    private void Jump_performed( UnityEngine.InputSystem.InputAction.CallbackContext obj )
     {
         jump = obj.ReadValueAsButton();
     }
-    private void Movement_performed(UnityEngine.InputSystem.InputAction.CallbackContext obj)
+    private void Movement_performed( UnityEngine.InputSystem.InputAction.CallbackContext obj )
     {
         f_movementInput = obj.ReadValue<float>();
     }
@@ -65,7 +65,7 @@ public class Player : MonoBehaviour
         BarValueChange(ref anxietyValue, f_anxietyMultiplier);
         BarValueChange(ref bowelValue, f_bowelMultiplier);
     }
-    void BarValueChange(ref float bar, float multiplier)
+    void BarValueChange( ref float bar, float multiplier )
     {
         bar += Time.deltaTime * multiplier / max;
         if (bar >= 1) Die();
