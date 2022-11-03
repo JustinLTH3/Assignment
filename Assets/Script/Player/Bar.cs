@@ -6,6 +6,7 @@ public class Bar : MonoBehaviour
 {
     Image mask;
     Player player;
+    
     void Start()
     {
         mask = GetComponent<Image>();
@@ -15,6 +16,15 @@ public class Bar : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        mask.fillAmount = player.AnxietyValue;
+        switch (gameObject.name)
+        {
+            case "AnxietyBar":
+                mask.fillAmount = player.AnxietyValue;
+                break;
+            case "BowelBar":
+                mask.fillAmount = player.BowelValue;
+                break;
+        }
+        
     }
 }
