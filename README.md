@@ -16,27 +16,33 @@ Menu – ![#00cb00](https://placehold.co/15x15/00cb00/00cb00.png)start. Settings
 
 ![#00cb00](https://placehold.co/15x15/00cb00/00cb00.png)Level – background, platform, wall art
 
-![#00cb00](https://placehold.co/15x15/00cb00/00cb00.png)Stairs – wet floor, one teacher
+![#00cb00](https://placehold.co/15x15/00cb00/00cb00.png)Stairs – 
 
-![##00adfe](https://placehold.co/15x15/00adfe/00adfe.png)Main Character design/walk animation  
+![#ffffff](https://placehold.co/15x15/ffffff/ffffff.png)wet floor, one teacher
+
+![#ffffff](https://placehold.co/15x15/ffffff/ffffff.png)Main Character design/walk animation  
 
 ![##00adfe](https://placehold.co/15x15/00adfe/00adfe.png)– Timmy Mechanics
 
-![##00adfe](https://placehold.co/15x15/00adfe/00adfe.png)Panic attack – when anxiety bar fills. Makes you restart from floor 6
+![#ffffff](https://placehold.co/15x15/ffffff/ffffff.png)Panic attack – ![##00adfe](https://placehold.co/15x15/00adfe/00adfe.png)when anxiety bar fills. Makes you restart from floor 6
 
-![##00adfe](https://placehold.co/15x15/00adfe/00adfe.png)Excretion – when bowel bar fills. Make you restart from 6
+![#ffffff](https://placehold.co/15x15/ffffff/ffffff.png)Excretion –
+![##00adfe](https://placehold.co/15x15/00adfe/00adfe.png)when bowel bar fills. Make you restart from 6
 
 ![##00adfe](https://placehold.co/15x15/00adfe/00adfe.png)Bars – bowel/anxiety
 
-![##00adfe](https://placehold.co/15x15/00adfe/00adfe.png)Wet floor – yellow hazard sign. Little puddle under it. If T walks on it he slips & anxiety bar increases.
+![#ffffff](https://placehold.co/15x15/ffffff/ffffff.png)Wet floor – yellow hazard sign. Little puddle under it. 
 
-![#f03c15](https://placehold.co/15x15/f03c15/f03c15.png)Teachers design
+![##00adfe](https://placehold.co/15x15/00adfe/00adfe.png)If T walks on it he slips & anxiety bar increases.
+
+![#ffffff](https://placehold.co/15x15/ffffff/ffffff.png)Teachers design
 ![#00cb00](https://placehold.co/15x15/00cb00/00cb00.png)– ask questions when they see you right in front of them (distance)
 
 ![#00cb00](https://placehold.co/15x15/00cb00/00cb00.png)Q&A – pop up window. MCQ’s. answer through short keys e.g., 1, 2, 3
 
 ![#f03c15](https://placehold.co/15x15/f03c15/f03c15.png)Elevators – earned after 3 correct questions. Transitions you to 2 floors down.
 
-![#f03c15](https://placehold.co/15x15/f03c15/f03c15.png)Toilet deisgn
- – entering it reduces anxiety bar
+![#ffffff](https://placehold.co/15x15/ffffff/ffffff.png)Toilet deisgn
+
+![##00adfe](https://placehold.co/15x15/00adfe/00adfe.png)– entering it reduces anxiety bar
 	Relieve button = reduces bowel bar completely
