@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using Newtonsoft.Json;
+using UnityEngine.UI;
 
 /************************************************
  * loading scene, saving and load previous game
@@ -14,26 +15,55 @@ public class MySceneManager : MonoBehaviour
 {
     MySceneManager instance;
     string s_savedGameKey = "SavedGame";
+    Canvas loadScreen, mainCanvas;
+
     private void Start()
     {
         if (instance == null) instance = this;
-        else if (instance != this) Destroy(gameObject);
+        else if (instance != this)
+        {
+            Destroy(gameObject);
+            return;
+        }
         DontDestroyOnLoad(gameObject);
-
-
+        GetCanvas();
+        loadScreen.enabled = false;
+    }
+    void GetCanvas()
+    {
+        loadScreen = GameObject.Find("LoadScreen").GetComponent<Canvas>();
+        mainCanvas = GameObject.Find("MainCanvas").GetComponent<Canvas>();
+    }
+    void GetCanvas( int index )//0== main, 1 == load
+    {
+        loadScreen = GameObject.Find("LoadScreen").GetComponent<Canvas>();
+        mainCanvas = GameObject.Find("MainCanvas").GetComponent<Canvas>();
+        loadScreen.enabled = index == 1;
+        mainCanvas.enabled = index == 0;
     }
     public void LoadSceneBtn( int index )
     {
         StartCoroutine(LoadScene(index));
     }
+    public void NewGame()
+    {
+        DeleteSave();
+        StartCoroutine(LoadLevel());
+    }
     private IEnumerator LoadScene( int index )
     {
+        mainCanvas.enabled = false;
+        loadScreen.enabled = true;
+        yield return new WaitForSecondsRealtime(.5f);
         AsyncOperation operation = SceneManager.LoadSceneAsync(index);
+
         while (!operation.isDone)
         {
             //Showing load screen;
             yield return null;
         }
+
+        GetCanvas();
     }
     public IEnumerator LoadLevel()
     {
@@ -52,19 +82,30 @@ public class MySceneManager : MonoBehaviour
         {
             yield return null;
         }
-        
+        GetCanvas(1);
         yield return StartCoroutine(LevelInit(levelData));
         //Initialize the level with level data, e.g. teachers' position
+        loadScreen.enabled = false;
+        mainCanvas.enabled = true;
     }
-    IEnumerator LevelInit(LevelData levelData)
+    IEnumerator LevelInit( LevelData levelData )
     {
         yield return null;
     }
     public void SaveGame()
     {
-        LevelData dataToSave = new();
+        LevelData dataToSave = GetLevelData();
+
+
         string s_dataToSave = JsonConvert.SerializeObject(dataToSave);
         PlayerPrefs.SetString(s_savedGameKey, s_dataToSave);
+    }
+    LevelData GetLevelData()
+    {
+        LevelData levelData = new(SceneManager.GetActiveScene().buildIndex);
+
+
+        return levelData;
     }
     public void GameEnd()// back to start menu or retry.
     {
