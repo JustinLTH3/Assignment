@@ -17,11 +17,20 @@ public class PauseMenu : MonoBehaviour
         mySceneManager = GameObject.Find("MySceneManager").GetComponent<MySceneManager>();
         pausemenu.SetActive(false);
     }
-    public void SaveGame()
+    private void OnDestroy()
     {
-        mySceneManager.SaveGame();
-        mySceneManager.LoadSceneBtn(0);
+        inputManager.playerInput.Gameplay.Pause.performed -= Pause_performed;
+    }
+    public void GiveUp()
+    {
         Time.timeScale = 1;
+        mySceneManager.GameEndBtn(false);
+    }
+    public void SaveGameBtn()
+    {
+        Time.timeScale = 1;
+        mySceneManager.SaveGameBtn();
+        mySceneManager.LoadSceneBtn(0);
     }
     private void Pause_performed( UnityEngine.InputSystem.InputAction.CallbackContext obj )
     {

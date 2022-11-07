@@ -32,6 +32,8 @@ public class Player : MonoBehaviour
     private float f_bowelMultiplier = 6;
     private float max = 100;
 
+    MySceneManager mySceneManager;
+
     private void Start()
     {
         rb = GetComponent<Rigidbody2D>();
@@ -47,6 +49,14 @@ public class Player : MonoBehaviour
         bowelValue = 0;
         anxietyValue = 0;
 
+        mySceneManager = GameObject.Find("MySceneManager").GetComponent<MySceneManager>();
+    }
+    private void OnDestroy()
+    {
+        inputManager.playerInput.Gameplay.Movement.performed -= Movement_performed;
+        inputManager.playerInput.Gameplay.Movement.canceled -= Movement_performed;
+        inputManager.playerInput.Gameplay.Jump.performed -= Jump_performed;
+        inputManager.playerInput.Gameplay.Jump.canceled -= Jump_performed;
     }
     private void Jump_performed( UnityEngine.InputSystem.InputAction.CallbackContext obj )
     {
@@ -73,7 +83,8 @@ public class Player : MonoBehaviour
 
     private void Die()
     {
-        Debug.Log("Die");
+        mySceneManager.GameEndBtn(false);
+        Destroy(gameObject);
     }
 
     private void FixedUpdate()

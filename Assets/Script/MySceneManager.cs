@@ -4,6 +4,7 @@ using UnityEngine;
 using UnityEngine.SceneManagement;
 using Newtonsoft.Json;
 using UnityEngine.UI;
+using TMPro;
 
 /************************************************
  * loading scene, saving and load previous game
@@ -13,7 +14,7 @@ using UnityEngine.UI;
  ************************************************/
 public class MySceneManager : MonoBehaviour
 {
-    MySceneManager instance;
+    static MySceneManager instance;
     string s_savedGameKey = "SavedGame";
     Canvas loadScreen, mainCanvas;
 
@@ -31,39 +32,39 @@ public class MySceneManager : MonoBehaviour
     }
     void GetCanvas()
     {
-        loadScreen = GameObject.Find("LoadScreen").GetComponent<Canvas>();
-        mainCanvas = GameObject.Find("MainCanvas").GetComponent<Canvas>();
+        loadScreen = GameObject.FindGameObjectWithTag("LoadScreen").GetComponent<Canvas>();
+        mainCanvas = GameObject.FindGameObjectWithTag("MainCanvas").GetComponent<Canvas>();
     }
-    void GetCanvas( int index )//0== main, 1 == load
+    IEnumerator GetCanvas( int index )//0== main, 1 == load
     {
-        loadScreen = GameObject.Find("LoadScreen").GetComponent<Canvas>();
-        mainCanvas = GameObject.Find("MainCanvas").GetComponent<Canvas>();
+        loadScreen = GameObject.FindGameObjectWithTag("LoadScreen").GetComponent<Canvas>();
+        mainCanvas = GameObject.FindGameObjectWithTag("MainCanvas").GetComponent<Canvas>();
         loadScreen.enabled = index == 1;
         mainCanvas.enabled = index == 0;
+        yield return null;
     }
     public void LoadSceneBtn( int index )
     {
-        StartCoroutine(LoadScene(index));
+        StartCoroutine(LoadScene(index, false));
     }
     public void NewGame()
     {
         DeleteSave();
         StartCoroutine(LoadLevel());
     }
-    private IEnumerator LoadScene( int index )
+    private IEnumerator LoadScene( int index, bool needInitAfterLoad )
     {
-        mainCanvas.enabled = false;
-        loadScreen.enabled = true;
+        yield return StartCoroutine(GetCanvas(1));
         yield return new WaitForSecondsRealtime(.5f);
         AsyncOperation operation = SceneManager.LoadSceneAsync(index);
-
         while (!operation.isDone)
         {
             //Showing load screen;
             yield return null;
         }
 
-        GetCanvas();
+        if (!needInitAfterLoad) yield return StartCoroutine(GetCanvas(0));
+        else yield return StartCoroutine(GetCanvas(1));
     }
     public IEnumerator LoadLevel()
     {
@@ -82,7 +83,7 @@ public class MySceneManager : MonoBehaviour
         {
             yield return null;
         }
-        GetCanvas(1);
+        yield return StartCoroutine(GetCanvas(1));
         yield return StartCoroutine(LevelInit(levelData));
         //Initialize the level with level data, e.g. teachers' position
         loadScreen.enabled = false;
@@ -92,7 +93,7 @@ public class MySceneManager : MonoBehaviour
     {
         yield return null;
     }
-    public void SaveGame()
+    public void SaveGameBtn()
     {
         LevelData dataToSave = GetLevelData();
 
@@ -100,6 +101,7 @@ public class MySceneManager : MonoBehaviour
         string s_dataToSave = JsonConvert.SerializeObject(dataToSave);
         PlayerPrefs.SetString(s_savedGameKey, s_dataToSave);
     }
+
     LevelData GetLevelData()
     {
         LevelData levelData = new(SceneManager.GetActiveScene().buildIndex);
@@ -107,11 +109,25 @@ public class MySceneManager : MonoBehaviour
 
         return levelData;
     }
-    public void GameEnd()// back to start menu or retry.
+    public void GameEndBtn( bool win )
+    {
+        StartCoroutine(GameEnd(win));
+    }
+    private IEnumerator GameEnd( bool win )// back to start menu or retry.
     {
         DeleteSave();
-
         //Load Game End Scene;
+        yield return StartCoroutine(LoadScene(SceneManager.sceneCountInBuildSettings - 1, true));
+        
+        if (win)
+        {
+            mainCanvas.transform.Find("Title").GetComponent<TMP_Text>().text = "You Win";
+        }
+        else
+        {
+            mainCanvas.transform.Find("Title").GetComponent<TMP_Text>().text = "You Lose";
+        }
+        yield return StartCoroutine(GetCanvas(0));
     }
     private void DeleteSave() //Delete Saved Game Data
     {

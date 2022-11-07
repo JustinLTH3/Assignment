@@ -2,6 +2,34 @@
     "name": "PlayerInput",
     "maps": [
         {
+            "name": "Menu",
+            "id": "60de6b2d-923c-4523-8660-438eda76c80f",
+            "actions": [
+                {
+                    "name": "Cancel",
+                    "type": "Button",
+                    "id": "ff9a9c94-cc38-4def-b6fd-1d0f119f4f55",
+                    "expectedControlType": "Button",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
+                }
+            ],
+            "bindings": [
+                {
+                    "name": "",
+                    "id": "7db1cb7d-cd49-4f88-815a-3c432c7a5e13",
+                    "path": "<Keyboard>/escape",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "Cancel",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                }
+            ]
+        },
+        {
             "name": "Gameplay",
             "id": "6084a52b-abfb-4353-8a6a-5c1c67607257",
             "actions": [
