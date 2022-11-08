@@ -81,6 +81,33 @@ public partial class @PlayerInput : IInputActionCollection2, IDisposable
                     ""processors"": """",
                     ""interactions"": """",
                     ""initialStateCheck"": false
+                },
+                {
+                    ""name"": ""AnswerQues0"",
+                    ""type"": ""Button"",
+                    ""id"": ""dd235470-3cb4-4333-9682-7da05c04c5bf"",
+                    ""expectedControlType"": ""Button"",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false
+                },
+                {
+                    ""name"": ""AnswerQues1"",
+                    ""type"": ""Button"",
+                    ""id"": ""2150acf2-1b16-4934-b588-0bac987c9013"",
+                    ""expectedControlType"": ""Button"",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false
+                },
+                {
+                    ""name"": ""AnswerQues2"",
+                    ""type"": ""Button"",
+                    ""id"": ""59061815-8c8e-4d3a-920a-c9afb1690284"",
+                    ""expectedControlType"": ""Button"",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false
                 }
             ],
             ""bindings"": [
@@ -138,6 +165,39 @@ public partial class @PlayerInput : IInputActionCollection2, IDisposable
                     ""action"": ""Pause"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""622c2267-4ac1-4b46-b2f6-8df02714a633"",
+                    ""path"": ""<Keyboard>/1"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": ""Defalt"",
+                    ""action"": ""AnswerQues0"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""b1672547-b531-4a0b-bc41-0f394da633d2"",
+                    ""path"": ""<Keyboard>/2"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": ""Defalt"",
+                    ""action"": ""AnswerQues1"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""8668572c-8c27-42c1-9e18-8308eff77c0a"",
+                    ""path"": ""<Keyboard>/3"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": ""Defalt"",
+                    ""action"": ""AnswerQues2"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
                 }
             ]
         }
@@ -158,6 +218,9 @@ public partial class @PlayerInput : IInputActionCollection2, IDisposable
         m_Gameplay_Movement = m_Gameplay.FindAction("Movement", throwIfNotFound: true);
         m_Gameplay_Jump = m_Gameplay.FindAction("Jump", throwIfNotFound: true);
         m_Gameplay_Pause = m_Gameplay.FindAction("Pause", throwIfNotFound: true);
+        m_Gameplay_AnswerQues0 = m_Gameplay.FindAction("AnswerQues0", throwIfNotFound: true);
+        m_Gameplay_AnswerQues1 = m_Gameplay.FindAction("AnswerQues1", throwIfNotFound: true);
+        m_Gameplay_AnswerQues2 = m_Gameplay.FindAction("AnswerQues2", throwIfNotFound: true);
     }
 
     public void Dispose()
@@ -253,6 +316,9 @@ public partial class @PlayerInput : IInputActionCollection2, IDisposable
     private readonly InputAction m_Gameplay_Movement;
     private readonly InputAction m_Gameplay_Jump;
     private readonly InputAction m_Gameplay_Pause;
+    private readonly InputAction m_Gameplay_AnswerQues0;
+    private readonly InputAction m_Gameplay_AnswerQues1;
+    private readonly InputAction m_Gameplay_AnswerQues2;
     public struct GameplayActions
     {
         private @PlayerInput m_Wrapper;
@@ -260,6 +326,9 @@ public partial class @PlayerInput : IInputActionCollection2, IDisposable
         public InputAction @Movement => m_Wrapper.m_Gameplay_Movement;
         public InputAction @Jump => m_Wrapper.m_Gameplay_Jump;
         public InputAction @Pause => m_Wrapper.m_Gameplay_Pause;
+        public InputAction @AnswerQues0 => m_Wrapper.m_Gameplay_AnswerQues0;
+        public InputAction @AnswerQues1 => m_Wrapper.m_Gameplay_AnswerQues1;
+        public InputAction @AnswerQues2 => m_Wrapper.m_Gameplay_AnswerQues2;
         public InputActionMap Get() { return m_Wrapper.m_Gameplay; }
         public void Enable() { Get().Enable(); }
         public void Disable() { Get().Disable(); }
@@ -278,6 +347,15 @@ public partial class @PlayerInput : IInputActionCollection2, IDisposable
                 @Pause.started -= m_Wrapper.m_GameplayActionsCallbackInterface.OnPause;
                 @Pause.performed -= m_Wrapper.m_GameplayActionsCallbackInterface.OnPause;
                 @Pause.canceled -= m_Wrapper.m_GameplayActionsCallbackInterface.OnPause;
+                @AnswerQues0.started -= m_Wrapper.m_GameplayActionsCallbackInterface.OnAnswerQues0;
+                @AnswerQues0.performed -= m_Wrapper.m_GameplayActionsCallbackInterface.OnAnswerQues0;
+                @AnswerQues0.canceled -= m_Wrapper.m_GameplayActionsCallbackInterface.OnAnswerQues0;
+                @AnswerQues1.started -= m_Wrapper.m_GameplayActionsCallbackInterface.OnAnswerQues1;
+                @AnswerQues1.performed -= m_Wrapper.m_GameplayActionsCallbackInterface.OnAnswerQues1;
+                @AnswerQues1.canceled -= m_Wrapper.m_GameplayActionsCallbackInterface.OnAnswerQues1;
+                @AnswerQues2.started -= m_Wrapper.m_GameplayActionsCallbackInterface.OnAnswerQues2;
+                @AnswerQues2.performed -= m_Wrapper.m_GameplayActionsCallbackInterface.OnAnswerQues2;
+                @AnswerQues2.canceled -= m_Wrapper.m_GameplayActionsCallbackInterface.OnAnswerQues2;
             }
             m_Wrapper.m_GameplayActionsCallbackInterface = instance;
             if (instance != null)
@@ -291,6 +369,15 @@ public partial class @PlayerInput : IInputActionCollection2, IDisposable
                 @Pause.started += instance.OnPause;
                 @Pause.performed += instance.OnPause;
                 @Pause.canceled += instance.OnPause;
+                @AnswerQues0.started += instance.OnAnswerQues0;
+                @AnswerQues0.performed += instance.OnAnswerQues0;
+                @AnswerQues0.canceled += instance.OnAnswerQues0;
+                @AnswerQues1.started += instance.OnAnswerQues1;
+                @AnswerQues1.performed += instance.OnAnswerQues1;
+                @AnswerQues1.canceled += instance.OnAnswerQues1;
+                @AnswerQues2.started += instance.OnAnswerQues2;
+                @AnswerQues2.performed += instance.OnAnswerQues2;
+                @AnswerQues2.canceled += instance.OnAnswerQues2;
             }
         }
     }
@@ -313,5 +400,8 @@ public partial class @PlayerInput : IInputActionCollection2, IDisposable
         void OnMovement(InputAction.CallbackContext context);
         void OnJump(InputAction.CallbackContext context);
         void OnPause(InputAction.CallbackContext context);
+        void OnAnswerQues0(InputAction.CallbackContext context);
+        void OnAnswerQues1(InputAction.CallbackContext context);
+        void OnAnswerQues2(InputAction.CallbackContext context);
     }
 }

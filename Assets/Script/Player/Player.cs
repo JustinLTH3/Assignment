@@ -2,7 +2,9 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-
+using UnityEngine.InputSystem;
+using TMPro;
+using UnityEngine.UI;
 public class Player : MonoBehaviour
 {
     //Input buffer and InputManager
@@ -12,6 +14,7 @@ public class Player : MonoBehaviour
     //Gravity and groundcheck 
     private float u_y;
     private float gravity = -10;
+
     bool isGrounded;
     Transform leg;
     [SerializeField] LayerMask ground;
@@ -22,7 +25,6 @@ public class Player : MonoBehaviour
     private float jumpHeight = 1;
     private bool jump;
 
-
     //Bars value
     public float AnxietyValue { get => anxietyValue; }
     private float anxietyValue = 0;
@@ -31,8 +33,16 @@ public class Player : MonoBehaviour
     private float f_anxietyMultiplier = 3;
     private float f_bowelMultiplier = 6;
     private float max = 100;
+    private float slipAnxiety = 10;
 
     MySceneManager mySceneManager;
+
+    public bool beingAsked = false;
+    bool answered = false;
+    int playerAns;
+    GameObject quesDisHolder;
+    TMP_Text quesDis;
+    List<Button> Ans = new();
 
     private void Start()
     {
@@ -45,11 +55,96 @@ public class Player : MonoBehaviour
         inputManager.playerInput.Gameplay.Movement.canceled += Movement_performed;
         inputManager.playerInput.Gameplay.Jump.performed += Jump_performed;
         inputManager.playerInput.Gameplay.Jump.canceled += Jump_performed;
+        inputManager.playerInput.Gameplay.AnswerQues0.performed += AnswerQuestion;
+        inputManager.playerInput.Gameplay.AnswerQues1.performed += AnswerQuestion;
+        inputManager.playerInput.Gameplay.AnswerQues2.performed += AnswerQuestion;
 
         bowelValue = 0;
         anxietyValue = 0;
 
+        quesDisHolder = GameObject.FindGameObjectWithTag("MainCanvas").transform
+            .Find("QuestionDisplayHolder").gameObject;
+        quesDisHolder.SetActive(false);
+        quesDis = quesDisHolder.transform.Find("Question").Find("Question").GetComponent<TMP_Text>();
+        Ans.Add(quesDisHolder.transform.Find("Question").Find("Ans0").GetComponent<Button>());
+        Ans.Add(quesDisHolder.transform.Find("Question").Find("Ans1").GetComponent<Button>());
+        Ans.Add(quesDisHolder.transform.Find("Question").Find("Ans2").GetComponent<Button>());
+
         mySceneManager = GameObject.Find("MySceneManager").GetComponent<MySceneManager>();
+    }
+    public IEnumerator TeacherAsk(Question question)
+    {
+        beingAsked = true;
+        float timer = 0;
+
+        quesDisHolder.SetActive(true);
+        quesDis.text = question.question;
+        for (int i = 0; i < 3; i++)
+        {
+            Ans[i].transform.GetComponentInChildren<TMP_Text>().text = question.ans[i];
+            var j = i;
+            Ans[i].onClick.AddListener(delegate() { AnswerQuestion(j); });
+        }
+
+        while (!answered && timer < 10)
+        {
+            timer += Time.deltaTime;
+            yield return null;
+        }
+        if (!answered) { 
+            AnswerCorrect(false);
+        }
+        if (playerAns == question.c_ans) AnswerCorrect(true);
+        else AnswerCorrect(false);
+
+        for (int i = 0; i < 3; i++)
+        {
+            Ans[i].onClick.RemoveAllListeners();
+        }
+
+        beingAsked = false;
+        answered = false;
+        quesDisHolder.SetActive(false);
+    }
+    public IEnumerator TeacherAsk(Question[] questions)
+    {
+        for(int i = 0; i < questions.Length; i++)
+        {
+            yield return StartCoroutine(TeacherAsk(questions[i]));
+        }
+    }
+    void AnswerCorrect(bool isCorrect)
+    {
+        Debug.Log("Answer " + (isCorrect ? "is correct" : "not correct"));
+        if (!isCorrect)
+        {
+            anxietyValue += max / 3 / max;
+        }
+        else
+        {
+            anxietyValue -= max / 8 / max;
+        }
+    }
+    void AnswerQuestion(InputAction.CallbackContext context)
+    {
+        if (!beingAsked) return;
+        switch (context.action.name)
+        {
+            case "AnswerQues0":
+                AnswerQuestion(0);
+                break;
+            case "AnswerQues1":
+                AnswerQuestion(1);
+                break;
+            case "AnswerQues2":
+                AnswerQuestion(2);
+                break;
+        }
+    }
+    void AnswerQuestion(int answer)
+    {
+        answered = true;
+        playerAns = answer;
     }
     private void OnDestroy()
     {
@@ -58,11 +153,11 @@ public class Player : MonoBehaviour
         inputManager.playerInput.Gameplay.Jump.performed -= Jump_performed;
         inputManager.playerInput.Gameplay.Jump.canceled -= Jump_performed;
     }
-    private void Jump_performed( UnityEngine.InputSystem.InputAction.CallbackContext obj )
+    private void Jump_performed(UnityEngine.InputSystem.InputAction.CallbackContext obj)
     {
         jump = obj.ReadValueAsButton();
     }
-    private void Movement_performed( UnityEngine.InputSystem.InputAction.CallbackContext obj )
+    private void Movement_performed(UnityEngine.InputSystem.InputAction.CallbackContext obj)
     {
         f_movementInput = obj.ReadValue<float>();
     }
@@ -75,12 +170,11 @@ public class Player : MonoBehaviour
         BarValueChange(ref anxietyValue, f_anxietyMultiplier);
         BarValueChange(ref bowelValue, f_bowelMultiplier);
     }
-    void BarValueChange( ref float bar, float multiplier )
+    void BarValueChange(ref float bar, float multiplier)
     {
         bar += Time.deltaTime * multiplier / max;
         if (bar >= 1) Die();
     }
-
     private void Die()
     {
         mySceneManager.GameEndBtn(false);
@@ -114,8 +208,12 @@ public class Player : MonoBehaviour
             }
         }
 
-        move.x += f_movementInput * Time.deltaTime * speed;
+        if (!beingAsked) move.x += f_movementInput * Time.deltaTime * speed;
 
         rb.MovePosition(move);
+    }
+    public void Slip()
+    {
+        anxietyValue += slipAnxiety / max;
     }
 }

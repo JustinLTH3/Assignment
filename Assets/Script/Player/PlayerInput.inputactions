@@ -59,6 +59,33 @@
                     "processors": "",
                     "interactions": "",
                     "initialStateCheck": false
+                },
+                {
+                    "name": "AnswerQues0",
+                    "type": "Button",
+                    "id": "dd235470-3cb4-4333-9682-7da05c04c5bf",
+                    "expectedControlType": "Button",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
+                },
+                {
+                    "name": "AnswerQues1",
+                    "type": "Button",
+                    "id": "2150acf2-1b16-4934-b588-0bac987c9013",
+                    "expectedControlType": "Button",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
+                },
+                {
+                    "name": "AnswerQues2",
+                    "type": "Button",
+                    "id": "59061815-8c8e-4d3a-920a-c9afb1690284",
+                    "expectedControlType": "Button",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
                 }
             ],
             "bindings": [
@@ -114,6 +141,39 @@
                     "processors": "",
                     "groups": "Defalt",
                     "action": "Pause",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "622c2267-4ac1-4b46-b2f6-8df02714a633",
+                    "path": "<Keyboard>/1",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "Defalt",
+                    "action": "AnswerQues0",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "b1672547-b531-4a0b-bc41-0f394da633d2",
+                    "path": "<Keyboard>/2",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "Defalt",
+                    "action": "AnswerQues1",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "8668572c-8c27-42c1-9e18-8308eff77c0a",
+                    "path": "<Keyboard>/3",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "Defalt",
+                    "action": "AnswerQues2",
                     "isComposite": false,
                     "isPartOfComposite": false
                 }

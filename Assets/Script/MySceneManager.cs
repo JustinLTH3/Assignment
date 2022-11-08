@@ -15,6 +15,7 @@ using TMPro;
 public class MySceneManager : MonoBehaviour
 {
     static MySceneManager instance;
+    InputManager inputManager;
     string s_savedGameKey = "SavedGame";
     Canvas loadScreen, mainCanvas;
 
@@ -29,13 +30,14 @@ public class MySceneManager : MonoBehaviour
         DontDestroyOnLoad(gameObject);
         GetCanvas();
         loadScreen.enabled = false;
+        inputManager = GameObject.Find("InputManager").GetComponent<InputManager>();
     }
     void GetCanvas()
     {
         loadScreen = GameObject.FindGameObjectWithTag("LoadScreen").GetComponent<Canvas>();
         mainCanvas = GameObject.FindGameObjectWithTag("MainCanvas").GetComponent<Canvas>();
     }
-    IEnumerator GetCanvas( int index )//0== main, 1 == load
+    IEnumerator GetCanvas(int index)//0== main, 1 == load
     {
         loadScreen = GameObject.FindGameObjectWithTag("LoadScreen").GetComponent<Canvas>();
         mainCanvas = GameObject.FindGameObjectWithTag("MainCanvas").GetComponent<Canvas>();
@@ -43,16 +45,18 @@ public class MySceneManager : MonoBehaviour
         mainCanvas.enabled = index == 0;
         yield return null;
     }
-    public void LoadSceneBtn( int index )
+    public void LoadSceneBtn(int index)
     {
         StartCoroutine(LoadScene(index, false));
     }
     public void NewGame()
     {
         DeleteSave();
+        mainCanvas.transform.Find("NewGameBtn").GetComponent<Button>()
+            .onClick.RemoveAllListeners();
         StartCoroutine(LoadLevel());
     }
-    private IEnumerator LoadScene( int index, bool needInitAfterLoad )
+    private IEnumerator LoadScene(int index, bool needInitAfterLoad)
     {
         yield return StartCoroutine(GetCanvas(1));
         yield return new WaitForSecondsRealtime(.5f);
@@ -62,6 +66,10 @@ public class MySceneManager : MonoBehaviour
             //Showing load screen;
             yield return null;
         }
+
+        if (index == SceneManager.sceneCountInBuildSettings - 1 || index == 0)
+            inputManager.ChangeInputMap(InputManager.GameState.StartMenu);
+        else inputManager.ChangeInputMap(InputManager.GameState.InGame);
 
         if (!needInitAfterLoad) yield return StartCoroutine(GetCanvas(0));
         else yield return StartCoroutine(GetCanvas(1));
@@ -89,7 +97,7 @@ public class MySceneManager : MonoBehaviour
         loadScreen.enabled = false;
         mainCanvas.enabled = true;
     }
-    IEnumerator LevelInit( LevelData levelData )
+    IEnumerator LevelInit(LevelData levelData)
     {
         yield return null;
     }
@@ -109,16 +117,16 @@ public class MySceneManager : MonoBehaviour
 
         return levelData;
     }
-    public void GameEndBtn( bool win )
+    public void GameEndBtn(bool win)
     {
         StartCoroutine(GameEnd(win));
     }
-    private IEnumerator GameEnd( bool win )// back to start menu or retry.
+    private IEnumerator GameEnd(bool win)// back to start menu or retry.
     {
         DeleteSave();
         //Load Game End Scene;
         yield return StartCoroutine(LoadScene(SceneManager.sceneCountInBuildSettings - 1, true));
-        
+
         if (win)
         {
             mainCanvas.transform.Find("Title").GetComponent<TMP_Text>().text = "You Win";
@@ -128,6 +136,10 @@ public class MySceneManager : MonoBehaviour
             mainCanvas.transform.Find("Title").GetComponent<TMP_Text>().text = "You Lose";
         }
         yield return StartCoroutine(GetCanvas(0));
+        while (!Input.anyKeyDown) yield return null;
+        yield return StartCoroutine(LoadScene(0, false));
+        mainCanvas.transform.Find("NewGameBtn").GetComponent<Button>()
+            .onClick.AddListener(delegate () { NewGame(); });
     }
     private void DeleteSave() //Delete Saved Game Data
     {
@@ -139,7 +151,7 @@ public class MySceneManager : MonoBehaviour
         public int level;
 
         public static LevelData Begining = new(1);
-        public LevelData( int _level )
+        public LevelData(int _level)
         {
             level = _level;
         }

@@ -30,6 +30,9 @@ public class InputManager : MonoBehaviour
             case GameState.InGame:
                 playerInput.Gameplay.Enable();
                 break;
+            case GameState.StartMenu:
+                playerInput.Menu.Enable();
+                break;
         }
     }
 
