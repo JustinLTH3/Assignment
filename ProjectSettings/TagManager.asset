@@ -6,6 +6,7 @@ TagManager:
   tags:
   - MainCanvas
   - LoadScreen
+  - Teacher
   layers:
   - Default
   - TransparentFX

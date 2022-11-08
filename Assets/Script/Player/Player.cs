@@ -21,7 +21,7 @@ public class Player : MonoBehaviour
 
     //movement
     Rigidbody2D rb;
-    private float speed = 10;
+    private float speed = 3;
     private float jumpHeight = 1;
     private bool jump;
 
@@ -30,8 +30,8 @@ public class Player : MonoBehaviour
     private float anxietyValue = 0;
     public float BowelValue { get => bowelValue; }
     private float bowelValue = 0;
-    private float f_anxietyMultiplier = 3;
-    private float f_bowelMultiplier = 6;
+    private float f_anxietyMultiplier = 2;
+    private float f_bowelMultiplier = 1;
     private float max = 100;
     private float slipAnxiety = 10;
 
@@ -44,6 +44,14 @@ public class Player : MonoBehaviour
     TMP_Text quesDis;
     List<Button> Ans = new();
 
+    public void Init( float anxiety, float bowel, Vector3 pos, int level )
+    {
+        anxietyValue = anxiety;
+        bowelValue = bowel;
+        transform.position = pos;
+        f_anxietyMultiplier *= level;
+        f_bowelMultiplier *= level;
+    }
     private void Start()
     {
         rb = GetComponent<Rigidbody2D>();
@@ -58,6 +66,7 @@ public class Player : MonoBehaviour
         inputManager.playerInput.Gameplay.AnswerQues0.performed += AnswerQuestion;
         inputManager.playerInput.Gameplay.AnswerQues1.performed += AnswerQuestion;
         inputManager.playerInput.Gameplay.AnswerQues2.performed += AnswerQuestion;
+        inputManager.playerInput.Gameplay.Interact.performed += Interact_performed;
 
         bowelValue = 0;
         anxietyValue = 0;
@@ -72,7 +81,14 @@ public class Player : MonoBehaviour
 
         mySceneManager = GameObject.Find("MySceneManager").GetComponent<MySceneManager>();
     }
-    public IEnumerator TeacherAsk(Question question)
+
+    private void Interact_performed( InputAction.CallbackContext obj )
+    {
+        Door door = GameObject.Find("Door").GetComponent<Door>();
+        if (Vector3.Distance(transform.position, door.transform.position) <= .7f) door.Exit();
+    }
+
+    public IEnumerator TeacherAsk( Question question )
     {
         beingAsked = true;
         float timer = 0;
@@ -83,7 +99,7 @@ public class Player : MonoBehaviour
         {
             Ans[i].transform.GetComponentInChildren<TMP_Text>().text = question.ans[i];
             var j = i;
-            Ans[i].onClick.AddListener(delegate() { AnswerQuestion(j); });
+            Ans[i].onClick.AddListener(delegate () { AnswerQuestion(j); });
         }
 
         while (!answered && timer < 10)
@@ -91,7 +107,8 @@ public class Player : MonoBehaviour
             timer += Time.deltaTime;
             yield return null;
         }
-        if (!answered) { 
+        if (!answered)
+        {
             AnswerCorrect(false);
         }
         if (playerAns == question.c_ans) AnswerCorrect(true);
@@ -106,16 +123,15 @@ public class Player : MonoBehaviour
         answered = false;
         quesDisHolder.SetActive(false);
     }
-    public IEnumerator TeacherAsk(Question[] questions)
+    public IEnumerator TeacherAsk( Question[] questions )
     {
-        for(int i = 0; i < questions.Length; i++)
+        for (int i = 0; i < questions.Length; i++)
         {
             yield return StartCoroutine(TeacherAsk(questions[i]));
         }
     }
-    void AnswerCorrect(bool isCorrect)
+    void AnswerCorrect( bool isCorrect )
     {
-        Debug.Log("Answer " + (isCorrect ? "is correct" : "not correct"));
         if (!isCorrect)
         {
             anxietyValue += max / 3 / max;
@@ -125,7 +141,7 @@ public class Player : MonoBehaviour
             anxietyValue -= max / 8 / max;
         }
     }
-    void AnswerQuestion(InputAction.CallbackContext context)
+    void AnswerQuestion( InputAction.CallbackContext context )
     {
         if (!beingAsked) return;
         switch (context.action.name)
@@ -141,7 +157,7 @@ public class Player : MonoBehaviour
                 break;
         }
     }
-    void AnswerQuestion(int answer)
+    void AnswerQuestion( int answer )
     {
         answered = true;
         playerAns = answer;
@@ -152,12 +168,17 @@ public class Player : MonoBehaviour
         inputManager.playerInput.Gameplay.Movement.canceled -= Movement_performed;
         inputManager.playerInput.Gameplay.Jump.performed -= Jump_performed;
         inputManager.playerInput.Gameplay.Jump.canceled -= Jump_performed;
+        inputManager.playerInput.Gameplay.AnswerQues0.performed -= AnswerQuestion;
+        inputManager.playerInput.Gameplay.AnswerQues1.performed -= AnswerQuestion;
+        inputManager.playerInput.Gameplay.AnswerQues2.performed -= AnswerQuestion;
+        inputManager.playerInput.Gameplay.Interact.performed -= Interact_performed;
+
     }
-    private void Jump_performed(UnityEngine.InputSystem.InputAction.CallbackContext obj)
+    private void Jump_performed( UnityEngine.InputSystem.InputAction.CallbackContext obj )
     {
         jump = obj.ReadValueAsButton();
     }
-    private void Movement_performed(UnityEngine.InputSystem.InputAction.CallbackContext obj)
+    private void Movement_performed( UnityEngine.InputSystem.InputAction.CallbackContext obj )
     {
         f_movementInput = obj.ReadValue<float>();
     }
@@ -170,7 +191,7 @@ public class Player : MonoBehaviour
         BarValueChange(ref anxietyValue, f_anxietyMultiplier);
         BarValueChange(ref bowelValue, f_bowelMultiplier);
     }
-    void BarValueChange(ref float bar, float multiplier)
+    void BarValueChange( ref float bar, float multiplier )
     {
         bar += Time.deltaTime * multiplier / max;
         if (bar >= 1) Die();

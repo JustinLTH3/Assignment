@@ -5,6 +5,7 @@ using UnityEngine.SceneManagement;
 using Newtonsoft.Json;
 using UnityEngine.UI;
 using TMPro;
+using System.Linq;
 
 /************************************************
  * loading scene, saving and load previous game
@@ -37,7 +38,7 @@ public class MySceneManager : MonoBehaviour
         loadScreen = GameObject.FindGameObjectWithTag("LoadScreen").GetComponent<Canvas>();
         mainCanvas = GameObject.FindGameObjectWithTag("MainCanvas").GetComponent<Canvas>();
     }
-    IEnumerator GetCanvas(int index)//0== main, 1 == load
+    IEnumerator GetCanvas( int index )//0== main, 1 == load
     {
         loadScreen = GameObject.FindGameObjectWithTag("LoadScreen").GetComponent<Canvas>();
         mainCanvas = GameObject.FindGameObjectWithTag("MainCanvas").GetComponent<Canvas>();
@@ -45,18 +46,29 @@ public class MySceneManager : MonoBehaviour
         mainCanvas.enabled = index == 0;
         yield return null;
     }
-    public void LoadSceneBtn(int index)
+    public void LoadSceneBtn( int index, bool needInitAfterLoad = false )
     {
-        StartCoroutine(LoadScene(index, false));
+        StartCoroutine(LoadScene(index, needInitAfterLoad));
     }
     public void NewGame()
     {
         DeleteSave();
-        mainCanvas.transform.Find("NewGameBtn").GetComponent<Button>()
-            .onClick.RemoveAllListeners();
+        RemoveListeners();
         StartCoroutine(LoadLevel());
     }
-    private IEnumerator LoadScene(int index, bool needInitAfterLoad)
+    void RemoveListeners()
+    {
+        mainCanvas.transform.Find("NewGameBtn").GetComponent<Button>()
+            .onClick.RemoveAllListeners();
+        mainCanvas.transform.Find("LoadGameBtn").GetComponent<Button>()
+            .onClick.RemoveAllListeners();
+    }
+    public void LoadGame()
+    {
+        StartCoroutine(LoadLevel());
+        RemoveListeners();
+    }
+    private IEnumerator LoadScene( int index, bool needInitAfterLoad )
     {
         yield return StartCoroutine(GetCanvas(1));
         yield return new WaitForSecondsRealtime(.5f);
@@ -73,6 +85,13 @@ public class MySceneManager : MonoBehaviour
 
         if (!needInitAfterLoad) yield return StartCoroutine(GetCanvas(0));
         else yield return StartCoroutine(GetCanvas(1));
+        if (index == 0)
+        {
+            mainCanvas.transform.Find("NewGameBtn").GetComponent<Button>()
+            .onClick.AddListener(delegate () { NewGame(); });
+            mainCanvas.transform.Find("LoadGameBtn").GetComponent<Button>()
+                .onClick.AddListener(delegate () { LoadGame(); });
+        }
     }
     public IEnumerator LoadLevel()
     {
@@ -81,47 +100,74 @@ public class MySceneManager : MonoBehaviour
         if (!string.IsNullOrEmpty(s_levelData))
         {
             levelData = JsonConvert.DeserializeObject<LevelData>(s_levelData);
+            AsyncOperation operation = SceneManager.LoadSceneAsync(levelData.level);
+            while (!operation.isDone)
+            {
+                yield return null;
+            }
+            yield return StartCoroutine(GetCanvas(1));
+            yield return StartCoroutine(LevelInit(levelData));
+            //Initialize the level with level data, e.g. teachers' position
+            loadScreen.enabled = false;
+            mainCanvas.enabled = true;
         }
         else
         {
-            levelData = LevelData.Begining;
+            yield return StartCoroutine(LoadScene(1, false));
         }
-        AsyncOperation operation = SceneManager.LoadSceneAsync(levelData.level);
-        while (!operation.isDone)
-        {
-            yield return null;
-        }
-        yield return StartCoroutine(GetCanvas(1));
-        yield return StartCoroutine(LevelInit(levelData));
-        //Initialize the level with level data, e.g. teachers' position
-        loadScreen.enabled = false;
-        mainCanvas.enabled = true;
+
     }
-    IEnumerator LevelInit(LevelData levelData)
+    IEnumerator LevelInit( LevelData levelData )
     {
+        Player player = GameObject.FindGameObjectWithTag("Player").GetComponent<Player>();
+        player.Init(levelData.anxiety, levelData.bowel,
+            new Vector3(levelData.playerPos_x, levelData.playerPos_y, levelData.playerPos_z), levelData.level
+            );
+        List<GameObject> teachers = GameObject.FindGameObjectsWithTag("Teacher").ToList();
+        for (int i = 0; i < levelData.questions.Length; i++)
+        {
+            Teacher teacher = teachers[i].GetComponent<Teacher>();
+            teacher.Init(levelData.questions[i], levelData.asked[i]);
+        }
+
         yield return null;
     }
     public void SaveGameBtn()
     {
         LevelData dataToSave = GetLevelData();
-
+        Debug.Log("Save");
 
         string s_dataToSave = JsonConvert.SerializeObject(dataToSave);
         PlayerPrefs.SetString(s_savedGameKey, s_dataToSave);
     }
 
-    LevelData GetLevelData()
+    LevelData GetLevelData()// use to save
     {
-        LevelData levelData = new(SceneManager.GetActiveScene().buildIndex);
+        Debug.Log("GetLevelData");
+        List<GameObject> teachers = GameObject.FindGameObjectsWithTag("Teacher").ToList();
+        List<bool> asked = new();
+        List<string> questions = new();
 
+        foreach (GameObject teacher in teachers)
+        {
+            asked.Add(teacher.GetComponent<Teacher>().asked);
+            questions.Add(teacher.GetComponent<Teacher>()._Question.name);
+        }
+        Player player = GameObject.FindGameObjectWithTag("Player").GetComponent<Player>();
 
+        Vector3 playerPos = player.transform.position;
+
+        LevelData levelData = new(SceneManager.GetActiveScene().buildIndex,
+            asked.ToArray(), questions.ToArray(),
+            playerPos.x, playerPos.y, playerPos.z, player.AnxietyValue, player.BowelValue
+            );
         return levelData;
     }
-    public void GameEndBtn(bool win)
+    public void GameEndBtn( bool win )
     {
         StartCoroutine(GameEnd(win));
     }
-    private IEnumerator GameEnd(bool win)// back to start menu or retry.
+    private IEnumerator GameEnd( bool win )// back to start menu or retry.
     {
         DeleteSave();
         //Load Game End Scene;
@@ -140,6 +186,8 @@ public class MySceneManager : MonoBehaviour
         yield return StartCoroutine(LoadScene(0, false));
         mainCanvas.transform.Find("NewGameBtn").GetComponent<Button>()
             .onClick.AddListener(delegate () { NewGame(); });
+        mainCanvas.transform.Find("LoadGameBtn").GetComponent<Button>()
+            .onClick.AddListener(delegate () { LoadGame(); });
     }
     private void DeleteSave() //Delete Saved Game Data
     {
@@ -150,10 +198,24 @@ public class MySceneManager : MonoBehaviour
         //every data of the level that needed to be saved
         public int level;
 
-        public static LevelData Begining = new(1);
-        public LevelData(int _level)
+        public bool[] asked;
+        public string[] questions;
+
+        public float anxiety, bowel;
+        public float playerPos_x;
+        public float playerPos_y;
+        public float playerPos_z;
+        public LevelData( int _level, bool[] _asked, string[] _questions,
+            float _playerPos_x, float _playerPos_y, float _playerPos_z, float _anxiety, float _bowel )
         {
             level = _level;
+            asked = _asked;
+            questions = _questions;
+            anxiety = _anxiety;
+            bowel = _bowel;
+            playerPos_x = _playerPos_x;
+            playerPos_y = _playerPos_y;
+            playerPos_z = _playerPos_z;
         }
     }
 }

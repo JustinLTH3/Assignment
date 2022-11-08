@@ -108,6 +108,15 @@ public partial class @PlayerInput : IInputActionCollection2, IDisposable
                     ""processors"": """",
                     ""interactions"": """",
                     ""initialStateCheck"": false
+                },
+                {
+                    ""name"": ""Interact"",
+                    ""type"": ""Button"",
+                    ""id"": ""520e33be-c8a5-42d3-9964-6aa84689f166"",
+                    ""expectedControlType"": ""Button"",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false
                 }
             ],
             ""bindings"": [
@@ -198,6 +207,17 @@ public partial class @PlayerInput : IInputActionCollection2, IDisposable
                     ""action"": ""AnswerQues2"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""000d7dbc-d61a-4464-91c1-d7bf64e609e2"",
+                    ""path"": ""<Keyboard>/f"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": ""Defalt"",
+                    ""action"": ""Interact"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
                 }
             ]
         }
@@ -221,6 +241,7 @@ public partial class @PlayerInput : IInputActionCollection2, IDisposable
         m_Gameplay_AnswerQues0 = m_Gameplay.FindAction("AnswerQues0", throwIfNotFound: true);
         m_Gameplay_AnswerQues1 = m_Gameplay.FindAction("AnswerQues1", throwIfNotFound: true);
         m_Gameplay_AnswerQues2 = m_Gameplay.FindAction("AnswerQues2", throwIfNotFound: true);
+        m_Gameplay_Interact = m_Gameplay.FindAction("Interact", throwIfNotFound: true);
     }
 
     public void Dispose()
@@ -319,6 +340,7 @@ public partial class @PlayerInput : IInputActionCollection2, IDisposable
     private readonly InputAction m_Gameplay_AnswerQues0;
     private readonly InputAction m_Gameplay_AnswerQues1;
     private readonly InputAction m_Gameplay_AnswerQues2;
+    private readonly InputAction m_Gameplay_Interact;
     public struct GameplayActions
     {
         private @PlayerInput m_Wrapper;
@@ -329,6 +351,7 @@ public partial class @PlayerInput : IInputActionCollection2, IDisposable
         public InputAction @AnswerQues0 => m_Wrapper.m_Gameplay_AnswerQues0;
         public InputAction @AnswerQues1 => m_Wrapper.m_Gameplay_AnswerQues1;
         public InputAction @AnswerQues2 => m_Wrapper.m_Gameplay_AnswerQues2;
+        public InputAction @Interact => m_Wrapper.m_Gameplay_Interact;
         public InputActionMap Get() { return m_Wrapper.m_Gameplay; }
         public void Enable() { Get().Enable(); }
         public void Disable() { Get().Disable(); }
@@ -356,6 +379,9 @@ public partial class @PlayerInput : IInputActionCollection2, IDisposable
                 @AnswerQues2.started -= m_Wrapper.m_GameplayActionsCallbackInterface.OnAnswerQues2;
                 @AnswerQues2.performed -= m_Wrapper.m_GameplayActionsCallbackInterface.OnAnswerQues2;
                 @AnswerQues2.canceled -= m_Wrapper.m_GameplayActionsCallbackInterface.OnAnswerQues2;
+                @Interact.started -= m_Wrapper.m_GameplayActionsCallbackInterface.OnInteract;
+                @Interact.performed -= m_Wrapper.m_GameplayActionsCallbackInterface.OnInteract;
+                @Interact.canceled -= m_Wrapper.m_GameplayActionsCallbackInterface.OnInteract;
             }
             m_Wrapper.m_GameplayActionsCallbackInterface = instance;
             if (instance != null)
@@ -378,6 +404,9 @@ public partial class @PlayerInput : IInputActionCollection2, IDisposable
                 @AnswerQues2.started += instance.OnAnswerQues2;
                 @AnswerQues2.performed += instance.OnAnswerQues2;
                 @AnswerQues2.canceled += instance.OnAnswerQues2;
+                @Interact.started += instance.OnInteract;
+                @Interact.performed += instance.OnInteract;
+                @Interact.canceled += instance.OnInteract;
             }
         }
     }
@@ -403,5 +432,6 @@ public partial class @PlayerInput : IInputActionCollection2, IDisposable
         void OnAnswerQues0(InputAction.CallbackContext context);
         void OnAnswerQues1(InputAction.CallbackContext context);
         void OnAnswerQues2(InputAction.CallbackContext context);
+        void OnInteract(InputAction.CallbackContext context);
     }
 }

@@ -1306,7 +1306,7 @@ MonoBehaviour:
       m_Calls:
       - m_Target: {fileID: 6414661843210763852}
         m_TargetAssemblyTypeName: PauseMenu, Assembly-CSharp
-        m_MethodName: SaveGame
+        m_MethodName: SaveGameBtn
         m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}

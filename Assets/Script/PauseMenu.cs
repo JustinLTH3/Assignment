@@ -30,6 +30,7 @@ public class PauseMenu : MonoBehaviour
     {
         Time.timeScale = 1;
         mySceneManager.SaveGameBtn();
+
         mySceneManager.LoadSceneBtn(0);
     }
     private void Pause_performed( UnityEngine.InputSystem.InputAction.CallbackContext obj )

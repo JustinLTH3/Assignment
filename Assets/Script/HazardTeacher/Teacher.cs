@@ -6,16 +6,28 @@ using UnityEngine.UI;
 
 public class Teacher : MonoBehaviour
 {
-    bool asked = false;
+    public bool asked = false;
     Question _question;
+    public Question _Question { get => _question; }
     Player player;
     float askDis = 2;
+    public bool inited = false;
+    public void Init( string question, bool _asked )
+    {
+        _question = Resources.Load<Question>("Question/" + question);
+        asked = _asked;
+        inited = true;
+    }
     private void Awake()
     {
-        player = GameObject.FindGameObjectWithTag("Player").GetComponent<Player>();
-        Question[] questions = Resources.LoadAll<Question>("Question/");
-        _question = questions[Random.Range(0, questions.Length)];
-        asked = false;
+        if (!inited)
+        {
+            player = GameObject.FindGameObjectWithTag("Player").GetComponent<Player>();
+            Question[] questions = Resources.LoadAll<Question>("Question/");
+            _question = questions[Random.Range(0, questions.Length)];
+            asked = false;
+            inited = true;
+        }
     }
     private void Update()
     {
