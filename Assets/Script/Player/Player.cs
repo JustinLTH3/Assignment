@@ -44,7 +44,7 @@ public class Player : MonoBehaviour
     TMP_Text quesDis;
     List<Button> Ans = new();
 
-    public void Init(float anxiety, float bowel, Vector3 pos, int level, bool _beingAsked, float timer)
+    public void Init( float anxiety, float bowel, Vector3 pos, int level, bool _beingAsked, float timer )
     {
         anxietyValue = anxiety;
         bowelValue = bowel;
@@ -85,15 +85,33 @@ public class Player : MonoBehaviour
         mySceneManager = GameObject.Find("MySceneManager").GetComponent<MySceneManager>();
         timerI = QuesDisHolder.transform.Find("Question").Find("TimerFrame").Find("Timer").GetComponent<Image>();
     }
-    private void Interact_performed(InputAction.CallbackContext obj)
+    private void Interact_performed( InputAction.CallbackContext obj )
     {
         Door door = GameObject.Find("Door").GetComponent<Door>();
-        Toilet toilet = GameObject.Find("Toilet").GetComponent<Toilet>();
-        if (Vector3.Distance(transform.position, door.transform.position) <= .7f) door.Exit();
+        Toilet toilet;
+        if (GameObject.Find("Toilet") != null)
+        {
+            toilet = GameObject.Find("Toilet").GetComponent<Toilet>();
+            float d_dis = Vector3.Distance(transform.position, door.transform.position);
+            float t_dis = Vector3.Distance(transform.position, toilet.transform.position);
+            if (d_dis < t_dis && d_dis <= .6f)
+            {
+                door.Exit();
+            }
+            else if (t_dis < d_dis && t_dis <= .6f || toilet.inToilet)
+            {
+                toilet.Use();
+            }
+        }
+        else
+        {
+            float d_dis = Vector3.Distance(transform.position, door.transform.position);
+            if (d_dis <= .6f) door.Exit();
+        }
     }
     public float Timer { get; private set; }
     [SerializeField] Image timerI;
-    public IEnumerator TeacherAsk(Question question, Teacher teacher)
+    public IEnumerator TeacherAsk( Question question, Teacher teacher )
     {
         if (!beingAsked) Timer = 0;
         beingAsked = true;
@@ -130,18 +148,18 @@ public class Player : MonoBehaviour
         teacher.asked = true;
         QuesDisHolder.SetActive(false);
     }
-    void AnswerCorrect(bool isCorrect)
+    void AnswerCorrect( bool isCorrect )
     {
         if (!isCorrect)
         {
-            anxietyValue += max / 3 ;
+            anxietyValue += max / 3;
         }
         else
         {
-            anxietyValue -= max / 8 ;
+            anxietyValue -= max / 8;
         }
     }
-    void AnswerQuestion(InputAction.CallbackContext context)
+    void AnswerQuestion( InputAction.CallbackContext context )
     {
         if (!beingAsked) return;
         switch (context.action.name)
@@ -157,7 +175,7 @@ public class Player : MonoBehaviour
                 break;
         }
     }
-    void AnswerQuestion(int answer)
+    void AnswerQuestion( int answer )
     {
         answered = true;
         playerAns = answer;
@@ -174,11 +192,11 @@ public class Player : MonoBehaviour
         inputManager.playerInput.Gameplay.Interact.performed -= Interact_performed;
 
     }
-    private void Jump_performed(UnityEngine.InputSystem.InputAction.CallbackContext obj)
+    private void Jump_performed( UnityEngine.InputSystem.InputAction.CallbackContext obj )
     {
         jump = obj.ReadValueAsButton();
     }
-    private void Movement_performed(UnityEngine.InputSystem.InputAction.CallbackContext obj)
+    private void Movement_performed( UnityEngine.InputSystem.InputAction.CallbackContext obj )
     {
         f_movementInput = obj.ReadValue<float>();
     }
@@ -191,10 +209,20 @@ public class Player : MonoBehaviour
         BarValueChange(ref anxietyValue, f_anxietyMultiplier);
         BarValueChange(ref bowelValue, f_bowelMultiplier);
     }
-    void BarValueChange(ref float bar, float multiplier)
+    void BarValueChange( ref float bar, float multiplier )
     {
         bar += Time.deltaTime * multiplier;
+        bar = Mathf.Clamp(bar, 0, max);
         if (bar >= max) Die();
+    }
+    public void BarInit( float b_v, float a_v )
+    {
+        bowelValue = b_v;
+        anxietyValue = a_v;
+    }
+    public void Relieve( float _value )
+    {
+        bowelValue -= _value;
     }
     private void Die()
     {
@@ -235,6 +263,6 @@ public class Player : MonoBehaviour
     }
     public void Slip()
     {
-        anxietyValue += slipAnxiety / max;
+        anxietyValue += slipAnxiety;
     }
 }

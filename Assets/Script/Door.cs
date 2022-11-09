@@ -18,7 +18,8 @@ public class Door : MonoBehaviour
         }
         else
         {
-            mySceneManager.LoadSceneBtn(index);
+            Player player = GameObject.FindGameObjectWithTag("Player").GetComponent<Player>();
+            mySceneManager.StartCoroutine(mySceneManager.LoadSceneBtn(index, false, player.BowelValue, player.AnxietyValue));
         }
 
     }

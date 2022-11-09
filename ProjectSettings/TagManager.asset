@@ -7,6 +7,7 @@ TagManager:
   - MainCanvas
   - LoadScreen
   - Teacher
+  - Toilet
   layers:
   - Default
   - TransparentFX

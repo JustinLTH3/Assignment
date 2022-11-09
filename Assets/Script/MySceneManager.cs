@@ -38,7 +38,7 @@ public class MySceneManager : MonoBehaviour
         loadScreen = GameObject.FindGameObjectWithTag("LoadScreen").GetComponent<Canvas>();
         mainCanvas = GameObject.FindGameObjectWithTag("MainCanvas").GetComponent<Canvas>();
     }
-    IEnumerator GetCanvas(int index)//0== main, 1 == load
+    IEnumerator GetCanvas( int index )//0== main, 1 == load
     {
         loadScreen = GameObject.FindGameObjectWithTag("LoadScreen").GetComponent<Canvas>();
         mainCanvas = GameObject.FindGameObjectWithTag("MainCanvas").GetComponent<Canvas>();
@@ -46,9 +46,14 @@ public class MySceneManager : MonoBehaviour
         mainCanvas.enabled = index == 0;
         yield return null;
     }
-    public void LoadSceneBtn(int index, bool needInitAfterLoad = false)
+    public void LoadSceneBtn( int index, bool needInitAfterLoad = false )
     {
         StartCoroutine(LoadScene(index, needInitAfterLoad));
+    }
+    public IEnumerator LoadSceneBtn( int index, bool needInitAfterLoad, float bv, float avalue )
+    {
+        yield return StartCoroutine(LoadScene(index, needInitAfterLoad));
+        GameObject.FindGameObjectWithTag("Player").GetComponent<Player>().BarInit(bv, avalue);
     }
     public void NewGame()
     {
@@ -68,7 +73,7 @@ public class MySceneManager : MonoBehaviour
         StartCoroutine(LoadLevel());
         RemoveListeners();
     }
-    private IEnumerator LoadScene(int index, bool needInitAfterLoad)
+    private IEnumerator LoadScene( int index, bool needInitAfterLoad )
     {
         yield return StartCoroutine(GetCanvas(1));
         yield return new WaitForSecondsRealtime(.5f);
@@ -117,7 +122,7 @@ public class MySceneManager : MonoBehaviour
         }
 
     }
-    IEnumerator LevelInit(LevelData levelData)
+    IEnumerator LevelInit( LevelData levelData )
     {
         Player player = GameObject.FindGameObjectWithTag("Player").GetComponent<Player>();
         player.Init(levelData.anxiety, levelData.bowel,
@@ -131,6 +136,9 @@ public class MySceneManager : MonoBehaviour
             teacher.Init(levelData.questions[i], levelData.asked[i], levelData.asking[i]);
         }
 
+        Toilet toilet = GameObject.FindGameObjectWithTag("Toilet").GetComponent<Toilet>();
+        toilet.Init(levelData.toiletUsed, levelData.inToilet);
+
         yield return null;
     }
     public void SaveGameBtn()
@@ -141,7 +149,6 @@ public class MySceneManager : MonoBehaviour
         string s_dataToSave = JsonConvert.SerializeObject(dataToSave);
         PlayerPrefs.SetString(s_savedGameKey, s_dataToSave);
     }
-
     LevelData GetLevelData()// use to save
     {
         Debug.Log("GetLevelData");
@@ -158,18 +165,19 @@ public class MySceneManager : MonoBehaviour
         Player player = GameObject.FindGameObjectWithTag("Player").GetComponent<Player>();
 
         Vector3 playerPos = player.transform.position;
-
+        Toilet toilet = GameObject.FindGameObjectWithTag("Toilet").GetComponent<Toilet>();
         LevelData levelData = new(SceneManager.GetActiveScene().buildIndex,
             asked.ToArray(), asking.ToArray(), questions.ToArray(), player.Timer, player.beingAsked,
-            playerPos.x, playerPos.y, playerPos.z, player.AnxietyValue, player.BowelValue
+            playerPos.x, playerPos.y, playerPos.z, player.AnxietyValue, player.BowelValue,
+            toilet.used, toilet.inToilet
             );
         return levelData;
     }
-    public void GameEndBtn(bool win)
+    public void GameEndBtn( bool win )
     {
         StartCoroutine(GameEnd(win));
     }
-    private IEnumerator GameEnd(bool win)// back to start menu or retry.
+    private IEnumerator GameEnd( bool win )// back to start menu or retry.
     {
         DeleteSave();
         //Load Game End Scene;
@@ -210,8 +218,12 @@ public class MySceneManager : MonoBehaviour
         public float playerPos_y;
         public float playerPos_z;
         public bool beingAsked;
-        public LevelData(int _level, bool[] _asked, bool[] _asking, string[] _questions, float _timer,
-           bool _beingAsked, float _playerPos_x, float _playerPos_y, float _playerPos_z, float _anxiety, float _bowel)
+        public bool toiletUsed;
+        public bool inToilet;
+        public LevelData( int _level, bool[] _asked, bool[] _asking, string[] _questions, float _timer,
+           bool _beingAsked, float _playerPos_x, float _playerPos_y, float _playerPos_z, float _anxiety, float _bowel,
+           bool _toiletUsed, bool _inToilet
+           )
         {
             level = _level;
             asked = _asked;
@@ -224,6 +236,8 @@ public class MySceneManager : MonoBehaviour
             playerPos_x = _playerPos_x;
             playerPos_y = _playerPos_y;
             playerPos_z = _playerPos_z;
+            toiletUsed = _toiletUsed;
+            inToilet = _inToilet;
         }
     }
 }
