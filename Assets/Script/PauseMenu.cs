@@ -7,6 +7,7 @@ public class PauseMenu : MonoBehaviour
 {
     InputManager inputManager;
     MySceneManager mySceneManager;
+    Player player;
     bool paused = false;
     [SerializeField] GameObject pausemenu;
     private void Start()
@@ -16,6 +17,7 @@ public class PauseMenu : MonoBehaviour
 
         mySceneManager = GameObject.Find("MySceneManager").GetComponent<MySceneManager>();
         pausemenu.SetActive(false);
+        player = GameObject.FindGameObjectWithTag("Player").GetComponent<Player>();
     }
     private void OnDestroy()
     {
@@ -33,18 +35,20 @@ public class PauseMenu : MonoBehaviour
 
         mySceneManager.LoadSceneBtn(0);
     }
-    private void Pause_performed( UnityEngine.InputSystem.InputAction.CallbackContext obj )
+    private void Pause_performed(UnityEngine.InputSystem.InputAction.CallbackContext obj)
     {
         paused = !paused;
         if (paused)
         {
             Time.timeScale = 0;
             pausemenu.SetActive(true);
+            if (player.beingAsked) player.QuesDisHolder.SetActive(false);
         }
         else
         {
             Time.timeScale = 1;
             pausemenu.SetActive(false);
+            if (player.beingAsked) player.QuesDisHolder.SetActive(true);
         }
     }
 }

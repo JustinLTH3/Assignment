@@ -38,7 +38,7 @@ public class MySceneManager : MonoBehaviour
         loadScreen = GameObject.FindGameObjectWithTag("LoadScreen").GetComponent<Canvas>();
         mainCanvas = GameObject.FindGameObjectWithTag("MainCanvas").GetComponent<Canvas>();
     }
-    IEnumerator GetCanvas( int index )//0== main, 1 == load
+    IEnumerator GetCanvas(int index)//0== main, 1 == load
     {
         loadScreen = GameObject.FindGameObjectWithTag("LoadScreen").GetComponent<Canvas>();
         mainCanvas = GameObject.FindGameObjectWithTag("MainCanvas").GetComponent<Canvas>();
@@ -46,7 +46,7 @@ public class MySceneManager : MonoBehaviour
         mainCanvas.enabled = index == 0;
         yield return null;
     }
-    public void LoadSceneBtn( int index, bool needInitAfterLoad = false )
+    public void LoadSceneBtn(int index, bool needInitAfterLoad = false)
     {
         StartCoroutine(LoadScene(index, needInitAfterLoad));
     }
@@ -68,7 +68,7 @@ public class MySceneManager : MonoBehaviour
         StartCoroutine(LoadLevel());
         RemoveListeners();
     }
-    private IEnumerator LoadScene( int index, bool needInitAfterLoad )
+    private IEnumerator LoadScene(int index, bool needInitAfterLoad)
     {
         yield return StartCoroutine(GetCanvas(1));
         yield return new WaitForSecondsRealtime(.5f);
@@ -117,17 +117,18 @@ public class MySceneManager : MonoBehaviour
         }
 
     }
-    IEnumerator LevelInit( LevelData levelData )
+    IEnumerator LevelInit(LevelData levelData)
     {
         Player player = GameObject.FindGameObjectWithTag("Player").GetComponent<Player>();
         player.Init(levelData.anxiety, levelData.bowel,
-            new Vector3(levelData.playerPos_x, levelData.playerPos_y, levelData.playerPos_z), levelData.level
+            new Vector3(levelData.playerPos_x, levelData.playerPos_y, levelData.playerPos_z), levelData.level,
+            levelData.beingAsked, levelData.timer
             );
         List<GameObject> teachers = GameObject.FindGameObjectsWithTag("Teacher").ToList();
         for (int i = 0; i < levelData.questions.Length; i++)
         {
             Teacher teacher = teachers[i].GetComponent<Teacher>();
-            teacher.Init(levelData.questions[i], levelData.asked[i]);
+            teacher.Init(levelData.questions[i], levelData.asked[i], levelData.asking[i]);
         }
 
         yield return null;
@@ -147,27 +148,28 @@ public class MySceneManager : MonoBehaviour
         List<GameObject> teachers = GameObject.FindGameObjectsWithTag("Teacher").ToList();
         List<bool> asked = new();
         List<string> questions = new();
-
+        List<bool> asking = new();
         foreach (GameObject teacher in teachers)
         {
-            asked.Add(teacher.GetComponent<Teacher>().asked);
+            asked.Add(teacher.GetComponent<Teacher>().asking);
             questions.Add(teacher.GetComponent<Teacher>()._Question.name);
+            asking.Add(teacher.GetComponent<Teacher>().asking);
         }
         Player player = GameObject.FindGameObjectWithTag("Player").GetComponent<Player>();
 
         Vector3 playerPos = player.transform.position;
 
         LevelData levelData = new(SceneManager.GetActiveScene().buildIndex,
-            asked.ToArray(), questions.ToArray(),
+            asked.ToArray(), asking.ToArray(), questions.ToArray(), player.Timer, player.beingAsked,
             playerPos.x, playerPos.y, playerPos.z, player.AnxietyValue, player.BowelValue
             );
         return levelData;
     }
-    public void GameEndBtn( bool win )
+    public void GameEndBtn(bool win)
     {
         StartCoroutine(GameEnd(win));
     }
-    private IEnumerator GameEnd( bool win )// back to start menu or retry.
+    private IEnumerator GameEnd(bool win)// back to start menu or retry.
     {
         DeleteSave();
         //Load Game End Scene;
@@ -200,19 +202,25 @@ public class MySceneManager : MonoBehaviour
 
         public bool[] asked;
         public string[] questions;
+        public bool[] asking;
 
+        public float timer;
         public float anxiety, bowel;
         public float playerPos_x;
         public float playerPos_y;
         public float playerPos_z;
-        public LevelData( int _level, bool[] _asked, string[] _questions,
-            float _playerPos_x, float _playerPos_y, float _playerPos_z, float _anxiety, float _bowel )
+        public bool beingAsked;
+        public LevelData(int _level, bool[] _asked, bool[] _asking, string[] _questions, float _timer,
+           bool _beingAsked, float _playerPos_x, float _playerPos_y, float _playerPos_z, float _anxiety, float _bowel)
         {
             level = _level;
             asked = _asked;
+            asking = _asking;
             questions = _questions;
+            timer = _timer;
             anxiety = _anxiety;
             bowel = _bowel;
+            beingAsked = _beingAsked;
             playerPos_x = _playerPos_x;
             playerPos_y = _playerPos_y;
             playerPos_z = _playerPos_z;

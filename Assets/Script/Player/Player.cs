@@ -30,9 +30,9 @@ public class Player : MonoBehaviour
     private float anxietyValue = 0;
     public float BowelValue { get => bowelValue; }
     private float bowelValue = 0;
-    private float f_anxietyMultiplier = 2;
-    private float f_bowelMultiplier = 1;
-    private float max = 100;
+    private float f_anxietyMultiplier = 3;
+    private float f_bowelMultiplier = 2;
+    public const float max = 100;
     private float slipAnxiety = 10;
 
     MySceneManager mySceneManager;
@@ -40,17 +40,20 @@ public class Player : MonoBehaviour
     public bool beingAsked = false;
     bool answered = false;
     int playerAns;
-    GameObject quesDisHolder;
+    public GameObject QuesDisHolder { get; private set; }
     TMP_Text quesDis;
     List<Button> Ans = new();
 
-    public void Init( float anxiety, float bowel, Vector3 pos, int level )
+    public void Init(float anxiety, float bowel, Vector3 pos, int level, bool _beingAsked, float timer)
     {
         anxietyValue = anxiety;
         bowelValue = bowel;
         transform.position = pos;
         f_anxietyMultiplier *= level;
         f_bowelMultiplier *= level;
+        beingAsked = _beingAsked;
+        Timer = timer;
+        //if(beingAsked)StartCoroutine(TeacherAsk(level.))
     }
     private void Start()
     {
@@ -71,29 +74,31 @@ public class Player : MonoBehaviour
         bowelValue = 0;
         anxietyValue = 0;
 
-        quesDisHolder = GameObject.FindGameObjectWithTag("MainCanvas").transform
+        QuesDisHolder = GameObject.FindGameObjectWithTag("MainCanvas").transform
             .Find("QuestionDisplayHolder").gameObject;
-        quesDisHolder.SetActive(false);
-        quesDis = quesDisHolder.transform.Find("Question").Find("Question").GetComponent<TMP_Text>();
-        Ans.Add(quesDisHolder.transform.Find("Question").Find("Ans0").GetComponent<Button>());
-        Ans.Add(quesDisHolder.transform.Find("Question").Find("Ans1").GetComponent<Button>());
-        Ans.Add(quesDisHolder.transform.Find("Question").Find("Ans2").GetComponent<Button>());
+        QuesDisHolder.SetActive(false);
+        quesDis = QuesDisHolder.transform.Find("Question").Find("Question").GetComponent<TMP_Text>();
+        Ans.Add(QuesDisHolder.transform.Find("Question").Find("Ans0").GetComponent<Button>());
+        Ans.Add(QuesDisHolder.transform.Find("Question").Find("Ans1").GetComponent<Button>());
+        Ans.Add(QuesDisHolder.transform.Find("Question").Find("Ans2").GetComponent<Button>());
 
         mySceneManager = GameObject.Find("MySceneManager").GetComponent<MySceneManager>();
+        timerI = QuesDisHolder.transform.Find("Question").Find("TimerFrame").Find("Timer").GetComponent<Image>();
     }
-
-    private void Interact_performed( InputAction.CallbackContext obj )
+    private void Interact_performed(InputAction.CallbackContext obj)
     {
         Door door = GameObject.Find("Door").GetComponent<Door>();
+        Toilet toilet = GameObject.Find("Toilet").GetComponent<Toilet>();
         if (Vector3.Distance(transform.position, door.transform.position) <= .7f) door.Exit();
     }
-
-    public IEnumerator TeacherAsk( Question question )
+    public float Timer { get; private set; }
+    [SerializeField] Image timerI;
+    public IEnumerator TeacherAsk(Question question, Teacher teacher)
     {
+        if (!beingAsked) Timer = 0;
         beingAsked = true;
-        float timer = 0;
 
-        quesDisHolder.SetActive(true);
+        QuesDisHolder.SetActive(true);
         quesDis.text = question.question;
         for (int i = 0; i < 3; i++)
         {
@@ -102,9 +107,10 @@ public class Player : MonoBehaviour
             Ans[i].onClick.AddListener(delegate () { AnswerQuestion(j); });
         }
 
-        while (!answered && timer < 10)
+        while (!answered && Timer <= 10)
         {
-            timer += Time.deltaTime;
+            Timer += Time.deltaTime;
+            timerI.fillAmount = 1 - Timer / 10;
             yield return null;
         }
         if (!answered)
@@ -121,27 +127,21 @@ public class Player : MonoBehaviour
 
         beingAsked = false;
         answered = false;
-        quesDisHolder.SetActive(false);
+        teacher.asked = true;
+        QuesDisHolder.SetActive(false);
     }
-    public IEnumerator TeacherAsk( Question[] questions )
-    {
-        for (int i = 0; i < questions.Length; i++)
-        {
-            yield return StartCoroutine(TeacherAsk(questions[i]));
-        }
-    }
-    void AnswerCorrect( bool isCorrect )
+    void AnswerCorrect(bool isCorrect)
     {
         if (!isCorrect)
         {
-            anxietyValue += max / 3 / max;
+            anxietyValue += max / 3 ;
         }
         else
         {
-            anxietyValue -= max / 8 / max;
+            anxietyValue -= max / 8 ;
         }
     }
-    void AnswerQuestion( InputAction.CallbackContext context )
+    void AnswerQuestion(InputAction.CallbackContext context)
     {
         if (!beingAsked) return;
         switch (context.action.name)
@@ -157,7 +157,7 @@ public class Player : MonoBehaviour
                 break;
         }
     }
-    void AnswerQuestion( int answer )
+    void AnswerQuestion(int answer)
     {
         answered = true;
         playerAns = answer;
@@ -174,27 +174,27 @@ public class Player : MonoBehaviour
         inputManager.playerInput.Gameplay.Interact.performed -= Interact_performed;
 
     }
-    private void Jump_performed( UnityEngine.InputSystem.InputAction.CallbackContext obj )
+    private void Jump_performed(UnityEngine.InputSystem.InputAction.CallbackContext obj)
     {
         jump = obj.ReadValueAsButton();
     }
-    private void Movement_performed( UnityEngine.InputSystem.InputAction.CallbackContext obj )
+    private void Movement_performed(UnityEngine.InputSystem.InputAction.CallbackContext obj)
     {
         f_movementInput = obj.ReadValue<float>();
     }
     void GroundCheck()
     {
-        isGrounded = Physics2D.OverlapCircle(leg.position, .3f, ground);
+        isGrounded = Physics2D.OverlapCircle(leg.position, .35f, ground);
     }
     private void Update()
     {
         BarValueChange(ref anxietyValue, f_anxietyMultiplier);
         BarValueChange(ref bowelValue, f_bowelMultiplier);
     }
-    void BarValueChange( ref float bar, float multiplier )
+    void BarValueChange(ref float bar, float multiplier)
     {
-        bar += Time.deltaTime * multiplier / max;
-        if (bar >= 1) Die();
+        bar += Time.deltaTime * multiplier;
+        if (bar >= max) Die();
     }
     private void Die()
     {

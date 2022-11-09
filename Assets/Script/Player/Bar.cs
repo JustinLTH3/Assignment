@@ -6,7 +6,7 @@ public class Bar : MonoBehaviour
 {
     Image mask;
     Player player;
-    
+
     void Start()
     {
         mask = GetComponent<Image>();
@@ -19,12 +19,12 @@ public class Bar : MonoBehaviour
         switch (gameObject.name)
         {
             case "AnxietyBar":
-                mask.fillAmount = player.AnxietyValue;
+                mask.fillAmount = player.AnxietyValue / Player.max;
                 break;
             case "BowelBar":
-                mask.fillAmount = player.BowelValue;
+                mask.fillAmount = player.BowelValue / Player.max;
                 break;
         }
-        
+
     }
 }
