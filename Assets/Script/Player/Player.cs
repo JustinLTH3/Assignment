@@ -5,6 +5,9 @@ using UnityEngine;
 using UnityEngine.InputSystem;
 using TMPro;
 using UnityEngine.UI;
+using UnityEngine.SceneManagement;
+using UnityEngine.Animations;
+
 public class Player : MonoBehaviour
 {
     //Input buffer and InputManager
@@ -43,6 +46,8 @@ public class Player : MonoBehaviour
     public GameObject QuesDisHolder { get; private set; }
     TMP_Text quesDis;
     List<Button> Ans = new();
+
+    [SerializeField] Animator animator;
 
     public void Init(float anxiety, float bowel, Vector3 pos, int level, bool _beingAsked, float timer)
     {
@@ -118,14 +123,14 @@ public class Player : MonoBehaviour
 
         QuesDisHolder.SetActive(true);
         quesDis.text = question.question;
-        
+
         for (int i = 0; i < 3; i++)
         {
             Ans[i].transform.GetComponentInChildren<TMP_Text>().text = question.ans[i];
             var j = i;
             Ans[i].onClick.AddListener(delegate () { AnswerQuestion(j); });
-        }
 
+        }
         while (!answered && Timer <= 10)
         {
             Timer += Time.deltaTime;
@@ -259,11 +264,17 @@ public class Player : MonoBehaviour
         }
 
         if (!beingAsked) move.x += f_movementInput * Time.deltaTime * speed;
-
+        if (move.x != transform.position.x) animator.SetBool("walking", true);
+        else animator.SetBool("walking", false);
         rb.MovePosition(move);
     }
     public void Slip()
     {
-        anxietyValue += slipAnxiety;
+        anxietyValue += slipAnxiety * SceneManager.GetActiveScene().buildIndex;
+        speed += 3;
+    }
+    public void SlipExit()
+    {
+        speed -= 3;
     }
 }
