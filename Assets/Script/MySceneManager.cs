@@ -32,6 +32,8 @@ public class MySceneManager : MonoBehaviour
         GetCanvas();
         loadScreen.enabled = false;
         inputManager = GameObject.Find("InputManager").GetComponent<InputManager>();
+        mainCanvas.transform.Find("QuitBtn").GetComponent<Button>()
+            .onClick.AddListener(() => Application.Quit());
     }
     void GetCanvas()
     {
@@ -66,6 +68,8 @@ public class MySceneManager : MonoBehaviour
         mainCanvas.transform.Find("NewGameBtn").GetComponent<Button>()
             .onClick.RemoveAllListeners();
         mainCanvas.transform.Find("LoadGameBtn").GetComponent<Button>()
+            .onClick.RemoveAllListeners();
+        mainCanvas.transform.Find("QuitBtn").GetComponent<Button>()
             .onClick.RemoveAllListeners();
     }
     public void LoadGame()
@@ -198,6 +202,8 @@ public class MySceneManager : MonoBehaviour
             .onClick.AddListener(delegate () { NewGame(); });
         mainCanvas.transform.Find("LoadGameBtn").GetComponent<Button>()
             .onClick.AddListener(delegate () { LoadGame(); });
+        mainCanvas.transform.Find("QuitBtn").GetComponent<Button>()
+            .onClick.AddListener(() => Application.Quit());
     }
     private void DeleteSave() //Delete Saved Game Data
     {

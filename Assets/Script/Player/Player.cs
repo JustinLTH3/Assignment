@@ -6,29 +6,26 @@ using UnityEngine.InputSystem;
 using TMPro;
 using UnityEngine.UI;
 using UnityEngine.SceneManagement;
-using UnityEngine.Animations;
 
 public class Player : MonoBehaviour
 {
-    //Input buffer and InputManager
-    float f_movementInput;
     InputManager inputManager;
-
-    //Gravity and groundcheck 
-    private float u_y;
-    private float gravity = -10;
-
-    bool isGrounded;
-    Transform leg;
-    [SerializeField] LayerMask ground;
 
     //movement
     Rigidbody2D rb;
     private float speed = 3;
     private float jumpHeight = 1;
     private bool jump;
+    float f_movementInput;//movement input buffer
 
-    //Bars value
+    //Gravity and groundcheck 
+    private float u_y;
+    private float gravity = -10;
+    bool isGrounded;
+    Transform leg;
+    [SerializeField] LayerMask ground;
+
+    //Every things about anxiety and bowel bar
     public float AnxietyValue { get => anxietyValue; }
     private float anxietyValue = 0;
     public float BowelValue { get => bowelValue; }
@@ -40,16 +37,25 @@ public class Player : MonoBehaviour
 
     MySceneManager mySceneManager;
 
+    /*beingAsked is used to indicate the player is beingAsked by the teacher
+    avoiding multiple teachers asking together*/
     public bool beingAsked = false;
     bool answered = false;
     int playerAns;
+
+    //The timer for answering question
+    public float Timer { get; private set; }
+
+    //Store UI Object that display the questions, choices
     public GameObject QuesDisHolder { get; private set; }
     TMP_Text quesDis;
     List<Button> Ans = new();
+    Image timerI;
 
+    //Control Animation of the player
     [SerializeField] Animator animator;
 
-    public void Init(float anxiety, float bowel, Vector3 pos, int level, bool _beingAsked, float timer)
+    public void Init( float anxiety, float bowel, Vector3 pos, int level, bool _beingAsked, float timer )
     {
         anxietyValue = anxiety;
         bowelValue = bowel;
@@ -58,7 +64,6 @@ public class Player : MonoBehaviour
         f_bowelMultiplier *= level;
         beingAsked = _beingAsked;
         Timer = timer;
-        //if(beingAsked)StartCoroutine(TeacherAsk(level.))
     }
     private void Start()
     {
@@ -90,7 +95,7 @@ public class Player : MonoBehaviour
         mySceneManager = GameObject.Find("MySceneManager").GetComponent<MySceneManager>();
         timerI = QuesDisHolder.transform.Find("Question").Find("TimerFrame").Find("Timer").GetComponent<Image>();
     }
-    private void Interact_performed(InputAction.CallbackContext obj)
+    private void Interact_performed( InputAction.CallbackContext obj )
     {
         Door door = GameObject.Find("Door").GetComponent<Door>();
         Toilet toilet;
@@ -114,9 +119,7 @@ public class Player : MonoBehaviour
             if (d_dis <= .6f) door.Exit();
         }
     }
-    public float Timer { get; private set; }
-    [SerializeField] Image timerI;
-    public IEnumerator TeacherAsk(Question question, Teacher teacher)
+    public IEnumerator TeacherAsk( Question question, Teacher teacher )
     {
         if (!beingAsked) Timer = 0;
         beingAsked = true;
@@ -154,7 +157,7 @@ public class Player : MonoBehaviour
         teacher.asked = true;
         QuesDisHolder.SetActive(false);
     }
-    void AnswerCorrect(bool isCorrect)
+    void AnswerCorrect( bool isCorrect )
     {
         if (!isCorrect)
         {
@@ -165,7 +168,7 @@ public class Player : MonoBehaviour
             anxietyValue -= max / 8;
         }
     }
-    void AnswerQuestion(InputAction.CallbackContext context)
+    void AnswerQuestion( InputAction.CallbackContext context )
     {
         if (!beingAsked) return;
         switch (context.action.name)
@@ -181,13 +184,14 @@ public class Player : MonoBehaviour
                 break;
         }
     }
-    void AnswerQuestion(int answer)
+    void AnswerQuestion( int answer )
     {
         answered = true;
         playerAns = answer;
     }
     private void OnDestroy()
     {
+        //Unsubscribe input event
         inputManager.playerInput.Gameplay.Movement.performed -= Movement_performed;
         inputManager.playerInput.Gameplay.Movement.canceled -= Movement_performed;
         inputManager.playerInput.Gameplay.Jump.performed -= Jump_performed;
@@ -198,11 +202,11 @@ public class Player : MonoBehaviour
         inputManager.playerInput.Gameplay.Interact.performed -= Interact_performed;
 
     }
-    private void Jump_performed(UnityEngine.InputSystem.InputAction.CallbackContext obj)
+    private void Jump_performed( InputAction.CallbackContext obj )
     {
         jump = obj.ReadValueAsButton();
     }
-    private void Movement_performed(UnityEngine.InputSystem.InputAction.CallbackContext obj)
+    private void Movement_performed( InputAction.CallbackContext obj )
     {
         f_movementInput = obj.ReadValue<float>();
     }
@@ -213,20 +217,20 @@ public class Player : MonoBehaviour
     private void Update()
     {
         BarValueChange(ref anxietyValue, f_anxietyMultiplier);
-        BarValueChange(ref bowelValue, f_bowelMultiplier);
+        BarValueChange(ref bowelValue, f_bowelMultiplier * (1 + anxietyValue / max));
     }
-    void BarValueChange(ref float bar, float multiplier)
+    void BarValueChange( ref float bar, float multiplier )
     {
         bar += Time.deltaTime * multiplier;
         bar = Mathf.Clamp(bar, 0, max);
         if (bar >= max) Die();
     }
-    public void BarInit(float b_v, float a_v)
+    public void BarInit( float b_v, float a_v )
     {
         bowelValue = b_v;
         anxietyValue = a_v;
     }
-    public void Relieve(float _value)
+    public void Relieve( float _value )
     {
         bowelValue -= _value;
     }
@@ -235,7 +239,6 @@ public class Player : MonoBehaviour
         mySceneManager.GameEndBtn(false);
         Destroy(gameObject);
     }
-
     private void FixedUpdate()
     {
         GroundCheck();
@@ -265,6 +268,8 @@ public class Player : MonoBehaviour
 
         if (!beingAsked) move.x += f_movementInput * Time.deltaTime * speed;
         if (move.x != transform.position.x) animator.SetBool("walking", true);
+        if (move.x < transform.position.x) transform.rotation = Quaternion.Euler(0, 180, 0);
+        else if (move.x > transform.position.x) transform.rotation = Quaternion.identity;
         else animator.SetBool("walking", false);
         rb.MovePosition(move);
     }

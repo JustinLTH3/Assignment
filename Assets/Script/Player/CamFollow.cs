@@ -4,6 +4,9 @@ using UnityEngine;
 
 public class CamFollow : MonoBehaviour
 {
+    /****************************************
+     * The Camera will follow the player
+     ****************************************/
     Transform player;
     private void Start()
     {

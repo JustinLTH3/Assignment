@@ -42,12 +42,10 @@ public class Teacher : MonoBehaviour
             {
                 if (!player.beingAsked) AskQues();
             }
-
     }
     void AskQues()
     {
         asking = true;
         player.StartCoroutine(player.TeacherAsk(_question, this));
     }
-
 }
