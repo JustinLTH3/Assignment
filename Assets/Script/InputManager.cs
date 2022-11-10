@@ -25,7 +25,7 @@ public class InputManager : MonoBehaviour
     public void ChangeInputMap(GameState gameState)
     {
         playerInput.Disable();
-        switch(gameState)
+        switch (gameState)
         {
             case GameState.InGame:
                 playerInput.Gameplay.Enable();

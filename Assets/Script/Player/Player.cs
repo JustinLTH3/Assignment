@@ -44,7 +44,7 @@ public class Player : MonoBehaviour
     TMP_Text quesDis;
     List<Button> Ans = new();
 
-    public void Init( float anxiety, float bowel, Vector3 pos, int level, bool _beingAsked, float timer )
+    public void Init(float anxiety, float bowel, Vector3 pos, int level, bool _beingAsked, float timer)
     {
         anxietyValue = anxiety;
         bowelValue = bowel;
@@ -85,7 +85,7 @@ public class Player : MonoBehaviour
         mySceneManager = GameObject.Find("MySceneManager").GetComponent<MySceneManager>();
         timerI = QuesDisHolder.transform.Find("Question").Find("TimerFrame").Find("Timer").GetComponent<Image>();
     }
-    private void Interact_performed( InputAction.CallbackContext obj )
+    private void Interact_performed(InputAction.CallbackContext obj)
     {
         Door door = GameObject.Find("Door").GetComponent<Door>();
         Toilet toilet;
@@ -111,13 +111,14 @@ public class Player : MonoBehaviour
     }
     public float Timer { get; private set; }
     [SerializeField] Image timerI;
-    public IEnumerator TeacherAsk( Question question, Teacher teacher )
+    public IEnumerator TeacherAsk(Question question, Teacher teacher)
     {
         if (!beingAsked) Timer = 0;
         beingAsked = true;
 
         QuesDisHolder.SetActive(true);
         quesDis.text = question.question;
+        
         for (int i = 0; i < 3; i++)
         {
             Ans[i].transform.GetComponentInChildren<TMP_Text>().text = question.ans[i];
@@ -148,7 +149,7 @@ public class Player : MonoBehaviour
         teacher.asked = true;
         QuesDisHolder.SetActive(false);
     }
-    void AnswerCorrect( bool isCorrect )
+    void AnswerCorrect(bool isCorrect)
     {
         if (!isCorrect)
         {
@@ -159,7 +160,7 @@ public class Player : MonoBehaviour
             anxietyValue -= max / 8;
         }
     }
-    void AnswerQuestion( InputAction.CallbackContext context )
+    void AnswerQuestion(InputAction.CallbackContext context)
     {
         if (!beingAsked) return;
         switch (context.action.name)
@@ -175,7 +176,7 @@ public class Player : MonoBehaviour
                 break;
         }
     }
-    void AnswerQuestion( int answer )
+    void AnswerQuestion(int answer)
     {
         answered = true;
         playerAns = answer;
@@ -192,11 +193,11 @@ public class Player : MonoBehaviour
         inputManager.playerInput.Gameplay.Interact.performed -= Interact_performed;
 
     }
-    private void Jump_performed( UnityEngine.InputSystem.InputAction.CallbackContext obj )
+    private void Jump_performed(UnityEngine.InputSystem.InputAction.CallbackContext obj)
     {
         jump = obj.ReadValueAsButton();
     }
-    private void Movement_performed( UnityEngine.InputSystem.InputAction.CallbackContext obj )
+    private void Movement_performed(UnityEngine.InputSystem.InputAction.CallbackContext obj)
     {
         f_movementInput = obj.ReadValue<float>();
     }
@@ -209,18 +210,18 @@ public class Player : MonoBehaviour
         BarValueChange(ref anxietyValue, f_anxietyMultiplier);
         BarValueChange(ref bowelValue, f_bowelMultiplier);
     }
-    void BarValueChange( ref float bar, float multiplier )
+    void BarValueChange(ref float bar, float multiplier)
     {
         bar += Time.deltaTime * multiplier;
         bar = Mathf.Clamp(bar, 0, max);
         if (bar >= max) Die();
     }
-    public void BarInit( float b_v, float a_v )
+    public void BarInit(float b_v, float a_v)
     {
         bowelValue = b_v;
         anxietyValue = a_v;
     }
-    public void Relieve( float _value )
+    public void Relieve(float _value)
     {
         bowelValue -= _value;
     }
