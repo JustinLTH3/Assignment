@@ -4,7 +4,7 @@ using UnityEngine;
 
 public class Toilet : MonoBehaviour
 {
-    [SerializeField] float relieveValue = 10;
+    [SerializeField] float relieveValue = 40;
     [SerializeField] Transform room;
     public bool used { get; private set; }
     public bool inToilet { get; private set; }

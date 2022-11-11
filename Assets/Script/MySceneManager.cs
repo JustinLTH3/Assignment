@@ -32,7 +32,8 @@ public class MySceneManager : MonoBehaviour
         GetCanvas();
         loadScreen.enabled = false;
         inputManager = GameObject.Find("InputManager").GetComponent<InputManager>();
-        mainCanvas.transform.Find("QuitBtn").GetComponent<Button>()
+        if (SceneManager.GetActiveScene().buildIndex == 0)
+            mainCanvas.transform.Find("QuitBtn").GetComponent<Button>()
             .onClick.AddListener(() => Application.Quit());
     }
     void GetCanvas()
@@ -148,14 +149,12 @@ public class MySceneManager : MonoBehaviour
     public void SaveGameBtn()
     {
         LevelData dataToSave = GetLevelData();
-        Debug.Log("Save");
 
         string s_dataToSave = JsonConvert.SerializeObject(dataToSave);
         PlayerPrefs.SetString(s_savedGameKey, s_dataToSave);
     }
     LevelData GetLevelData()// use to save
     {
-        Debug.Log("GetLevelData");
         List<GameObject> teachers = GameObject.FindGameObjectsWithTag("Teacher").ToList();
         List<bool> asked = new();
         List<string> questions = new();

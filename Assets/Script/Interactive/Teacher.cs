@@ -13,7 +13,7 @@ public class Teacher : MonoBehaviour
     Player player;
     float askDis = 2;
     public bool inited = false;
-    public void Init(string question, bool _asked, bool _asking)
+    public void Init( string question, bool _asked, bool _asking )
     {
         player = GameObject.FindGameObjectWithTag("Player").GetComponent<Player>();
         _question = Resources.Load<Question>("Question/" + question);
@@ -29,6 +29,8 @@ public class Teacher : MonoBehaviour
             player = GameObject.FindGameObjectWithTag("Player").GetComponent<Player>();
             Question[] questions = Resources.LoadAll<Question>("Question/");
             _question = questions[Random.Range(0, questions.Length)];
+
+
             asking = false;
             asked = false;
             inited = true;
@@ -46,6 +48,21 @@ public class Teacher : MonoBehaviour
     void AskQues()
     {
         asking = true;
+        for (int i = 2; i > -1; i--)
+        {
+            int j = Random.Range(0, i + 1);
+            string x = _question.ans[j];
+            _question.ans[j] = _question.ans[i];
+            _question.ans[i] = x;
+            if (j == _question.c_ans)
+            {
+                _question.c_ans = i;
+            }
+            else if (i == _question.c_ans)
+            {
+                _question.c_ans = j;
+            }
+        }
         player.StartCoroutine(player.TeacherAsk(_question, this));
     }
 }
