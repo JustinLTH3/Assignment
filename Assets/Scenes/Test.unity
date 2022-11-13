@@ -1321,17 +1321,9 @@ PrefabInstance:
   m_Modification:
     m_TransformParent: {fileID: 0}
     m_Modifications:
-    - target: {fileID: 232233221024429702, guid: 07f69f3357eb565469cbead2d5a8f6fe, type: 3}
-      propertyPath: m_LocalPosition.y
-      value: 0.61
-      objectReference: {fileID: 0}
     - target: {fileID: 3402513582181026524, guid: 07f69f3357eb565469cbead2d5a8f6fe, type: 3}
       propertyPath: m_Name
       value: Toilet
-      objectReference: {fileID: 0}
-    - target: {fileID: 3820518735739149419, guid: 07f69f3357eb565469cbead2d5a8f6fe, type: 3}
-      propertyPath: m_LocalPosition.y
-      value: 0.72
       objectReference: {fileID: 0}
     - target: {fileID: 4955381523279364480, guid: 07f69f3357eb565469cbead2d5a8f6fe, type: 3}
       propertyPath: m_RootOrder

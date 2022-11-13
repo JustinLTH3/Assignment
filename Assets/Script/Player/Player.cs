@@ -30,9 +30,10 @@ public class Player : MonoBehaviour
     private float anxietyValue = 0;
     public float BowelValue { get => bowelValue; }
     private float bowelValue = 0;
-    private float f_anxietyMultiplier = 3;
-    private float f_bowelMultiplier = 2;
+    private float f_anxietyMultiplier = 2;
+    private float f_bowelMultiplier = 1.5f;
     public const float max = 100;
+    private float answerWrong = 10;
     private float slipAnxiety = 10;
 
     MySceneManager mySceneManager;
@@ -140,11 +141,8 @@ public class Player : MonoBehaviour
             timerI.fillAmount = 1 - Timer / 10;
             yield return null;
         }
-        if (!answered)
-        {
-            AnswerCorrect(false);
-        }
-        if (playerAns == question.c_ans) AnswerCorrect(true);
+
+        if (playerAns == question.c_ans && answered) AnswerCorrect(true);
         else AnswerCorrect(false);
 
         for (int i = 0; i < 3; i++)
@@ -161,11 +159,11 @@ public class Player : MonoBehaviour
     {
         if (!isCorrect)
         {
-            anxietyValue += max / 3;
+            anxietyValue += answerWrong * SceneManager.GetActiveScene().buildIndex;
         }
         else
         {
-            anxietyValue -= max / 8;
+            anxietyValue -= answerWrong * SceneManager.GetActiveScene().buildIndex / 3;
         }
     }
     void AnswerQuestion( InputAction.CallbackContext context )
